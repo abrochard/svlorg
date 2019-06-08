@@ -1,0 +1,8 @@
+* Svlorg
+
+Svelte + Blog + Org = Svlorg
+
+** TODO
+  - lazy loading
+  - better image support with styling/inline
+  - proper readme

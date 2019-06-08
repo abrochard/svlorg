@@ -1,0 +1,23 @@
+{
+  "name": "blog",
+  "version": "1.0.0",
+  "description": "",
+  "main": "generate.js",
+  "dependencies": {
+    "org": "^0.2.0"
+  },
+  "devDependencies": {
+    "express": "^4.17.1",
+    "rollup": "^1.13.1",
+    "rollup-plugin-node-resolve": "^5.0.1",
+    "rollup-plugin-svelte": "^5.0.3",
+    "svelte": "^3.4.4"
+  },
+  "scripts": {
+    "start": "rollup -cw & node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
