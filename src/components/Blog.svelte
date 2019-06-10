@@ -23,7 +23,9 @@
 </style>
 
 {#await promise}
-<p>...waiting</p>
+<div style="min-height: 500px">
+    Loading
+</div>
 {:then content}
 <p id="{title}" class="blog">
     {@html content}

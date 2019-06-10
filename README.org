@@ -2,7 +2,6 @@
 
 Svelte + Blog + Org = Svlorg
 
-** TODO
-  - lazy loading
+** Possible Improvements
   - better image support with styling/inline
   - proper readme

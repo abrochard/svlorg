@@ -7,6 +7,9 @@
  import Blog from './Blog.svelte';
  import Sidebar from './Sidebar.svelte';
 
+ import LazyLoadContainer from './LazyLoadContainer.svelte';
+ import LazyLoad from './LazyLoad.svelte';
+
 </script>
 
 <style>
@@ -16,7 +19,7 @@
      width: 100%;
  }
 
-  @media all and (max-width: 500px) {
+ @media all and (max-width: 500px) {
      .container {
          flex-direction: column;
      }
@@ -52,9 +55,13 @@
 <div class="container">
     <Sidebar bind:dark/>
     <div class="posts {dark ? 'dark' : ''}">
-        {#each posts as post}
-        <Blog title="{post}" />
-        <div class="separator"></div>
-        {/each}
+        <LazyLoadContainer>
+            {#each posts as post, i}
+            <LazyLoad id="{i}">
+                <Blog title="{post}" />
+                <div class="separator"></div>
+            </LazyLoad>
+            {/each}
+        </LazyLoadContainer>
     </div>
 </div>

@@ -1,0 +1,34 @@
+<script>
+
+ import { getContext, onMount } from 'svelte';
+
+ const key = 'key';
+
+ export let id = '';
+ export let height = 800;
+
+ let load = false;
+
+ const { registerObserver } = getContext(key);
+
+ onMount(() => {
+     const el = document.querySelector('#lazy-'+id);
+
+     registerObserver(el, () => {
+         load = true;
+     })
+ });
+ /* registerObserver() */
+
+</script>
+
+<div id="lazy-{id}">
+    {#if load}
+    <slot></slot>
+    {:else}
+    <div style="height: {height}px;">
+        Loading...
+    </div>
+    {/if}
+
+</div>
