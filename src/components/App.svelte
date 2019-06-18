@@ -26,6 +26,7 @@
  .posts {
      padding: 25px;
      overflow-y: scroll;
+     overflow-x: hidden;
  }
 
  .dark {

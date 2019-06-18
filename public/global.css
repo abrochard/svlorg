@@ -29,7 +29,11 @@ p img {
 }
 @media all and (max-width: 500px) {
     p img {
-        max-width: 300px;
+        max-width: 250px;
+    }
+
+    iframe {
+        max-width: 250px;
     }
 }
 
