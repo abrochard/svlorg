@@ -4,11 +4,9 @@
 
  let dark;
 
+ import { LazyLoadContainer, LazyLoad } from 'svelte-lazyload';
  import Blog from './Blog.svelte';
  import Sidebar from './Sidebar.svelte';
-
- import LazyLoadContainer from './LazyLoadContainer.svelte';
- import LazyLoad from './LazyLoad.svelte';
 
 </script>
 

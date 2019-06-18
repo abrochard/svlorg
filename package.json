@@ -11,7 +11,8 @@
     "rollup": "^1.13.1",
     "rollup-plugin-node-resolve": "^5.0.1",
     "rollup-plugin-svelte": "^5.0.3",
-    "svelte": "^3.4.4"
+    "svelte": "^3.4.4",
+    "svelte-lazyload": "0.0.4"
   },
   "scripts": {
     "start": "rollup -cw & node index.js",

@@ -5,3 +5,4 @@ Svelte + Blog + Org = Svlorg
 ** Possible Improvements
   - better image support with styling/inline
   - proper readme
+  - tags support
