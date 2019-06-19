@@ -52,7 +52,7 @@
 
  .title {
      font-size: 25px;
-     color: #F2F2F2;
+     color: #F2F2F2 !important;
  }
  .links {
      margin-left: auto;
@@ -73,13 +73,14 @@
  }
 
  a {
+     cursor: pointer;
      text-decoration: none;
      color: inherit;
  }
 </style>
 
 <div class="container">
-    <div class="title">abrochard blog</div>
+    <div class="title"><a href="/">abrochard blog</a></div>
 
     {#each links as link}
     <div class="item"><a href="{link.url}" target="_blank">{link.title}</a></div>
