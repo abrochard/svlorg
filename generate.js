@@ -27,7 +27,7 @@ const convert = function(file) {
   // console.dir(orgDocument);
   // console.dir(orgHTMLDocument);
 
-  const link = `<a href="#${file.replace('.org', '')}">Link</a>`;
+  const link = `<a href="/#/${file.replace('.org', '')}">Link</a>`;
   const title = `<div class="title-header">${orgHTMLDocument.titleHTML}${link}</div>`;
   const footer = `<div class="footer">${ts}</div>`;
 

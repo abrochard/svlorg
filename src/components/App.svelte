@@ -8,6 +8,9 @@
  import Blog from './Blog.svelte';
  import Sidebar from './Sidebar.svelte';
 
+ const hashPosition = window.location.href.indexOf('#/')
+ let location = (hashPosition > -1) ? window.location.href.substr(hashPosition + 2) : '';
+
 </script>
 
 <style>
@@ -54,6 +57,7 @@
 <div class="container">
     <Sidebar bind:dark/>
     <div class="posts {dark ? 'dark' : ''}">
+        {#if location === ""}
         <LazyLoadContainer>
             {#each posts as post, i}
             <LazyLoad id="{i}">
@@ -62,5 +66,8 @@
             </LazyLoad>
             {/each}
         </LazyLoadContainer>
+        {:else}
+        <Blog title="{location}"/>
+        {/if}
     </div>
 </div>
