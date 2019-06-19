@@ -1,5 +1,14 @@
 <script>
+
+ const links = [
+     {title: 'Homepage', url: 'https://abrochard.com'},
+     {title: 'GitHub', url: 'https://github.com/abrochard'},
+     {title: 'Twitter', url: 'https://twitter.com/abrochard'}
+ ];
+
  export let dark = localStorage.getItem('dark') === "true" ? true : false;
+
+ import LinksMenu from './LinksMenu.svelte';
 
  function flip() {
      dark = !dark;
@@ -19,43 +28,63 @@
      align-items: flex-start;
  }
 
+ .container div {
+     margin: 20px;
+     color: #BFBFBF;
+ }
+
+ .item {
+ }
+
  @media all and (max-width: 500px) {
      .container {
          flex-direction: row;
-         height: 100px;
+         height: 85px;
          width: 100%;
          max-width: 100%;
          align-items: center;
      }
+
+     .item {
+         display: none;
+     }
  }
 
- .item {
-     margin: 20px;
- }
  .title {
      font-size: 25px;
      color: #F2F2F2;
+ }
+ .links {
  }
  .bottom {
      color: white;
      cursor: pointer;
  }
+
  @media all and (min-width: 500px) {
      .bottom {
-         margin-top: auto;
+         margin-top: auto !important;
+     }
+
+     .links {
+         display: none;
      }
  }
 
  a {
      text-decoration: none;
-     color: #BFBFBF;
+     color: inherit;
  }
 </style>
 
 <div class="container">
-    <div class="item title">abrochard blog</div>
-    <div class="item"><a href="https://abrochard.github.io" target="_blank">Homepage</a></div>
-    <div class="item"><a href="https://github.com/abrochard" target="_blank">Github</a></div>
+    <div class="title">abrochard blog</div>
 
-    <div class="item bottom" on:click="{flip}">{dark ? 'Light' : 'Dark'}</div>
+    {#each links as link}
+    <div class="item"><a href="{link.url}" target="_blank">{link.title}</a></div>
+    {/each}
+
+    <div class="links"><LinksMenu {links} /></div>
+
+    <div class="bottom" on:click="{flip}">{dark ? 'Light' : 'Dark'}</div>
 </div>

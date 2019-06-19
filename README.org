@@ -6,3 +6,5 @@ Svelte + Blog + Org = Svlorg
   - better image support with styling/inline
   - proper readme
   - tags support
+  - direct links + svelte router
+  - css var
