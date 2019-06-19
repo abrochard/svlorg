@@ -55,6 +55,7 @@
      color: #F2F2F2;
  }
  .links {
+     margin-left: auto;
  }
  .bottom {
      color: white;
