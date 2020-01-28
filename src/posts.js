@@ -1,3 +1,3 @@
 export default [
-'sample-post'
+'hyperbole-intro'
 ];

@@ -1,0 +1,73 @@
+#+TITLE: Quick Introduction to Emacs Hyperbole
+
+I have tried to include [[https://www.gnu.org/software/hyperbole/][Hyperbole]] more and more into my workflow, and to match with the upcoming release of Hyperbole 7.0.8, I wanted to share a few tricks I like.
+
+This is far from covering all of Hyperbole's capabilities, but its the easiest ones to start with.
+
+The number one killer feature: "implicit buttons", or "do what I mean here".
+
+By default, put your cursor on something and hit =M-Return=
+
+* Jump to any file
+The easiest to understand, just put your cursor on an absolute or relative file path, with optionally a line and column number.
+
+[[https://imgur.com/3ylbs0I.gif][Hyperbole File Jump]]
+
+
+* Run a key sequence
+
+You can execute any key sequence from its text representation
+
+[[https://imgur.com/KhCc40N.gif][Hyperbole Keypress]]
+
+
+* Jump to error
+
+I use that one in my daily workflow. If I get a compiler error, I can directly jump to the line causing a problem.
+
+[[https://imgur.com/Gzr0fJu.gif][Hyperbole stack trace]]
+
+* Action buttons
+
+This is brand new, you can call any emacs lisp function or display a variable value with the =<EXPRESSION>= syntax.
+
+[[https://imgur.com/3bulcvG.gif][Hyperbole Action Buttons]]
+
+* More cool buttons
+  - External processes
+    #+begin_src text
+      "!/usr/local/bin/redis-cli"
+    #+end_src
+  - git, github, gitlab links
+    #+begin_src text
+      gh#abrochard/emacs-todoist/2a63ce7
+    #+end_src
+  - social media
+    #+begin_src text
+      twitter@abrochard
+    #+end_src
+
+* How to install latest
+
+I like to work off the git sources.
+
+** Clone and make
+
+#+begin_src shell
+  git clone https://git.savannah.gnu.org/git/hyperbole.git
+  cd hyperbole
+  make src
+#+end_src
+
+
+** Load
+
+#+begin_src emacs-lisp
+  (add-to-list 'load-path "PATH-TO-HYPERBOLE-FOLDER")
+  (load "hyperbole-autoloads")
+  (load "hyperbole")
+#+end_src
+
+* What to do next
+
+Check out the demo with ={C-h h d d}=

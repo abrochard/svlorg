@@ -1,1 +1,1 @@
-sample-post.org
+hyperbole-intro.org
