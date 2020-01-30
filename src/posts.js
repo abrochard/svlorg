@@ -1,3 +1,3 @@
 export default [
-'hyperbole-intro'
+  'hyperbole-intro'
 ];

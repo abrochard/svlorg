@@ -5,6 +5,7 @@ const org = require('org');
 const FOLDER = './posts';
 const DEST = './public/content';
 const INDEX = './posts/index.org';
+const HTML = './public/index.html';
 
 const convert = function(file) {
   const f = path.join(FOLDER, file);
@@ -27,12 +28,42 @@ const convert = function(file) {
   // console.dir(orgDocument);
   // console.dir(orgHTMLDocument);
 
+  const stylesheet = `<noscript><link rel="stylesheet" href="/global.css"></noscript>`;
   const link = `<a href="/#/${file.replace('.org', '')}">Link</a>`;
   const title = `<div class="title-header">${orgHTMLDocument.titleHTML}${link}</div>`;
   const footer = `<div class="footer">${ts}</div>`;
 
-  const content = title + '\n' + orgHTMLDocument.contentHTML + '\n' + footer;
-  fs.writeFileSync(path.join(DEST, file.replace('.org', '.html')), content);
+  const content = [stylesheet, title, orgHTMLDocument.contentHTML, footer].join('\n');
+  const post = {
+    title: orgDocument.title,
+    page: file.replace('.org', '.html')
+  };
+  fs.writeFileSync(path.join(DEST, post.page), content);
+
+  return post;
+};
+
+const buildStatic = function(posts) {
+  const links = posts.map(p => {
+    return `<li><a href="content/${p.page}">${p.title}</a></li>`;
+  });
+
+  const templ = `<noscript>
+        <div style="margin:5px;">
+          <h1>abrochard blog</h1>
+          <div style="word-spacing: 10px;">
+            <a href="https://abrochard.com">Homepage</a>
+            <a href="https://github.com/abrochard">GitHub</a>
+            <a href="https://twitter.com/abrochard">Twitter</a>
+          </div>
+          <p>For better viewing experience, please enable JavaScript.</p>
+          <ul>
+            ${links}
+          </ul>
+        </div>
+      </noscript>`;
+
+  fs.writeFileSync(HTML, fs.readFileSync(HTML, 'utf-8').replace( /<noscript>(.|\n)*<\/noscript>/, templ));
 };
 
 const generate = function() {
@@ -41,17 +72,19 @@ const generate = function() {
           return f !== '';
         });
 
-  fileList.forEach(convert);
+  const posts = fileList.map(convert);
 
   const list = fileList.map(f => {
     return `'${f.replace('.org', '')}'`;
   }).join(',\n');
 
   const content = `export default [
-${list}
+  ${list}
 ];`;
 
   fs.writeFileSync('./src/posts.js', content);
+
+  buildStatic(posts);
 };
 
 generate();
