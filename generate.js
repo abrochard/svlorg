@@ -60,7 +60,7 @@ const buildStatic = function(posts) {
           </div>
           <p>For better viewing experience, please enable JavaScript.</p>
           <ul>
-            ${links}
+            ${links.join('')}
           </ul>
         </div>
       </noscript>`;
