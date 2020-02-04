@@ -33,12 +33,13 @@ const convert = function(file) {
   // console.dir(orgDocument);
   // console.dir(orgHTMLDocument);
 
-  const noscript = `<noscript><link rel="stylesheet" href="/global.css"><head><title>${post.title}</title></head></noscript>`;
+  const noscript = `<noscript><link rel="stylesheet" href="/global.css"></noscript>`;
+  const header = `<head><title>${post.title}</title></head>`;
   const link = `<a href="/#/${file.replace('.org', '')}">Link</a>`;
   const title = `<div class="title-header">${orgHTMLDocument.titleHTML}${link}</div>`;
   const footer = `<div class="footer">${ts}</div>`;
 
-  const content = [noscript, title, orgHTMLDocument.contentHTML, footer].join('\n');
+  const content = [noscript, header, title, orgHTMLDocument.contentHTML, footer].join('\n');
   fs.writeFileSync(path.join(DEST, post.page), content);
 
   return post;
