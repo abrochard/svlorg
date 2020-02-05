@@ -35,7 +35,7 @@ const convert = function(file) {
 
   const noscript = `<noscript><link rel="stylesheet" href="/global.css"></noscript>`;
   const header = `<head><title>${post.title}</title></head>`;
-  const link = `<a href="/#/${file.replace('.org', '')}">Link</a>`;
+  const link = `<a href="/#/${file.replace('.org', '')}" onclick="setTitle('${post.title}')">Link</a>`;
   const title = `<div class="title-header">${orgHTMLDocument.titleHTML}${link}</div>`;
   const footer = `<div class="footer">${ts}</div>`;
 
