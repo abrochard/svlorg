@@ -18,7 +18,7 @@
 
 <style>
  .container {
-     height: 100%;
+   /* height: 100%; */
      width: 20%;
      max-width: 250px;
      background: #101010;
