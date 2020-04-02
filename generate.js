@@ -35,7 +35,7 @@ const convert = function(file) {
 
   const noscript = `<noscript><link rel="stylesheet" href="/global.css"></noscript>`;
   const header = `<head><title>${post.title}</title></head>`;
-  const link = `<a href="/#/${file.replace('.org', '')}" onclick="setTitle('${post.title}')">Link</a>`;
+  const link = `<a href="/${file.replace('.org', '')}.html">Link</a>`;
   const title = `<div class="title-header">${orgHTMLDocument.titleHTML}${link}</div>`;
   const footer = `<div class="footer">${ts}</div>`;
 
@@ -68,6 +68,14 @@ const buildStatic = function(posts) {
   fs.writeFileSync(HTML, fs.readFileSync(HTML, 'utf-8').replace( /<noscript>(.|\n)*<\/noscript>/, templ));
 };
 
+const buildLinks = function(posts) {
+  const index = fs.readFileSync(HTML, 'utf-8');
+  posts.forEach(p => {
+    const content = index.replace('<title>Blog</title>', `<title>${p.title}</title>`);
+    fs.writeFileSync(`./public/${p.page}`, content);
+  });
+};
+
 const generate = function() {
   const fileList = fs.readFileSync(INDEX, 'utf-8').split('\n')
         .filter(f => {
@@ -87,6 +95,8 @@ const generate = function() {
   fs.writeFileSync('./src/posts.js', content);
 
   buildStatic(posts);
+
+  buildLinks(posts);
 };
 
 generate();
