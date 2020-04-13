@@ -47,7 +47,7 @@ const convert = function(file) {
 
 const buildStatic = function(posts) {
   const links = posts.map(p => {
-    return `<li><a href="content/${p.page}">${p.title}</a></li>`;
+    return `<li><a href="${p.page}">${p.title}</a></li>`;
   });
 
   const templ = `<noscript>
@@ -71,7 +71,9 @@ const buildStatic = function(posts) {
 const buildLinks = function(posts) {
   const index = fs.readFileSync(HTML, 'utf-8');
   posts.forEach(p => {
-    const content = index.replace('<title>Blog</title>', `<title>${p.title}</title>`);
+    const templ = `<noscript><iframe width="100%" height="100%" style="width:100%; height:100%;" src="content/${p.page}"></iframe></noscript>`;
+    const content = index.replace('<title>Blog</title>', `<title>${p.title}</title>`)
+          .replace( /<noscript>(.|\n)*<\/noscript>/, templ);
     fs.writeFileSync(`./public/${p.page}`, content);
   });
 };
