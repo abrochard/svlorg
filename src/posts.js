@@ -1,3 +1,4 @@
 export default [
-  'hyperbole-intro'
+  'melpa-stats',
+'hyperbole-intro'
 ];

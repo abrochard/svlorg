@@ -1,0 +1,63 @@
+#+TITLE: Some statistics about MELPA
+
+Full disclaimer first: I am not a statistician nor well versed in statistics. But I was recently very interested in knowing more about [[https://melpa.org/#/][MELPA]] and how it was used. I did a bit of research, wrote a little [[https://github.com/abrochard/melpa-stats/blob/master/main.py][data massaging script]], compiled data [[https://github.com/abrochard/melpa-stats/blob/master/data.csv][here]], and went on to gather a few basic statistics about MELPA.
+
+* First glance
+
+At the time of writing this and when the data massaging script was ran, MELPA had
+- 4,548 packages
+- 1811 package owners
+- 180,821,044 total downloads
+
+* Timeline
+
+The first thing I wanted to know was how many packages were added by year. MELPA started in 2012 and since then its biggest year was 2013 with 755 new packages accepted into the repo. Since then, it has been on the decline.
+
+[[file:content/img/packages-added-by-year.png][packages-added-by-year]]
+
+* Sources
+
+No surprises here but over 95% of packages are hosted on github.com.
+
+[[file:content/img/Source-Distribution.png][Source Distribution]]
+
+* Downloads
+
+The basic stats are:
+- average of 39,908 downloads for a package
+- but a median of 1,831 downloads
+- with standard deviation of 148,129 downloads
+- the package with the fewest downloads was just added and sits at 7 downloads
+- the packages with the most downloads is at 2,693,349 downloads
+
+This translates into a very long tail distribution with a huge quantity of packages with "few" downloads and outliers with a very large number of downloads.
+
+[[file:content/img/Histogram-of-download-counts.png][Histogram of download counts]]
+
+Not very useful. There are definitely fancy ways of representing long tail data but it will have to be for another time.
+
+More interesting to compare is downloads to months since published.
+
+[[file:content/img/Months-since-added-vs-Download.png][Months added vs Downloads]]
+
+We can see that a lot of packages stay at a relatively low number of downloads over time meanwhile newer packages can reach a large number of downloads quickly.
+
+Without thinking much, I compared the length of a package name to its download count.
+
+[[file:content/img/Name-length-vs-Download.png][Name length vs Download]]
+
+It seems that packages with shorter names get more downloads. My two cents theory is that they are evocative enough or a library with catchy name (ie. dash). On the other hand, packages with very long names can be extensions of extensions like (company-XXX) with more of a niche aspect to begin with.
+
+* Owners
+
+Earlier I mentioned 1811 unique package owners. I was interested in seeing how many packages does one owner have. Obviously it averages to 2.45 packages per owner, but if I break down into buckets of 1, 2, 3, 4, and 5 and over packages I get this:
+
+[[file:content/img/Owners-by-Package-Count.png][Owner by package count]]
+
+Which tells us that about 63% of owners published only 1 package to MELPA.
+
+* Further steps
+
+I had quite a bit of fun looking at these numbers. I could foresee going back to the data with different questions. It would also be neat to get information about the code repositories themselves and interact with the github API to get things like total contributors per packages and number of commits.
+
+And who knows, maybe an interactive page to see charts in more details.

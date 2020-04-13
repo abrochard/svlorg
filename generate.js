@@ -37,9 +37,10 @@ const convert = function(file) {
   const header = `<head><title>${post.title}</title></head>`;
   const link = `<a href="/${file.replace('.org', '')}.html">Link</a>`;
   const title = `<div class="title-header">${orgHTMLDocument.titleHTML}${link}</div>`;
+  const body = orgHTMLDocument.contentHTML.replace(/src="file:/g, 'src="'); //  clean up links
   const footer = `<div class="footer">${ts}</div>`;
 
-  const content = [noscript, header, title, orgHTMLDocument.contentHTML, footer].join('\n');
+  const content = [noscript, header, title, body, footer].join('\n');
   fs.writeFileSync(path.join(DEST, post.page), content);
 
   return post;
