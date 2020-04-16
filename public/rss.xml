@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[blog.abrochard.com]]></title><description><![CDATA[abrochard tech blog]]></description><link>https://blog.abrochard.com</link><image><url>https://blog.abrochard.com/favicon.ico</url><title>blog.abrochard.com</title><link>https://blog.abrochard.com</link></image><generator>RSS for Node</generator><lastBuildDate>Thu, 16 Apr 2020 20:18:39 GMT</lastBuildDate><atom:link href="https://blog.abrochard.com/rss.xml" rel="self" type="application/rss+xml"/><pubDate>Thu, 16 Apr 2020 20:18:39 GMT</pubDate><copyright><![CDATA[2020 Adrien Brochard]]></copyright><language><![CDATA[en]]></language><managingEditor><![CDATA[Adrien Brochard]]></managingEditor><webMaster><![CDATA[Adrien Brochard]]></webMaster><ttl>60</ttl><category><![CDATA[tech]]></category><category><![CDATA[blog]]></category><category><![CDATA[emacs]]></category><item><title><![CDATA[Some statistics about MELPA]]></title><description><![CDATA[<noscript><link rel="stylesheet" href="/global.css"></noscript>
+<head><title>Some statistics about MELPA</title></head>
+<div class="title-header"><h1>Some statistics about MELPA</h1>
+<a href="/melpa-stats.html">Link</a></div>
+<p>Full disclaimer first: I am not a statistician nor well versed in statistics. But I was recently very interested in knowing more about <a href="https://melpa.org/#/">MELPA</a> and how it was used. I did a bit of research, wrote a little <a href="https://github.com/abrochard/melpa-stats/blob/master/main.py">data massaging script</a>, compiled data <a href="https://github.com/abrochard/melpa-stats/blob/master/data.csv">here</a>, and went on to gather a few basic statistics about MELPA.</p>
+<h2 id="header-1"><span class="section-number">1</span>First glance</h2>
+<p>At the time of writing this and when the data massaging script was ran, MELPA had</p>
+<ul><li>4,548 packages</li>
+<li>1811 package owners</li>
+<li>180,821,044 total downloads</li>
+</ul>
+<h2 id="header-2"><span class="section-number">2</span>Timeline</h2>
+<p>The first thing I wanted to know was how many packages were added by year. MELPA started in 2012 and since then its biggest year was 2013 with 755 new packages accepted into the repo. Since then, it has been on the decline.</p>
+<p><img src="https://blog.abrochard.com/content/img/packages-added-by-year.png" alt="packages-added-by-year" title="packages-added-by-year"/></p>
+<h2 id="header-3"><span class="section-number">3</span>Sources</h2>
+<p>No surprises here but over 95% of packages are hosted on github.com.</p>
+<p><img src="https://blog.abrochard.com/content/img/Source-Distribution.png" alt="Source Distribution" title="Source Distribution"/></p>
+<h2 id="header-4"><span class="section-number">4</span>Downloads</h2>
+<p>The basic stats are:</p>
+<ul><li>average of 39,908 downloads for a package</li>
+<li>but a median of 1,831 downloads</li>
+<li>with standard deviation of 148,129 downloads</li>
+<li>the package with the fewest downloads was just added and sits at 7 downloads</li>
+<li>the packages with the most downloads is at 2,693,349 downloads</li>
+</ul>
+<p>This translates into a very long tail distribution with a huge quantity of packages with &#34;few&#34; downloads and outliers with a very large number of downloads.</p>
+<p><img src="https://blog.abrochard.com/content/img/Histogram-of-download-counts.png" alt="Histogram of download counts" title="Histogram of download counts"/></p>
+<p>Not very useful. There are definitely fancy ways of representing long tail data but it will have to be for another time.</p>
+<p>More interesting to compare is downloads to months since published.</p>
+<p><img src="https://blog.abrochard.com/content/img/Months-since-added-vs-Download.png" alt="Months added vs Downloads" title="Months added vs Downloads"/></p>
+<p>We can see that a lot of packages stay at a relatively low number of downloads over time meanwhile newer packages can reach a large number of downloads quickly.</p>
+<p>Without thinking much, I compared the length of a package name to its download count.</p>
+<p><img src="https://blog.abrochard.com/content/img/Name-length-vs-Download.png" alt="Name length vs Download" title="Name length vs Download"/></p>
+<p>It seems that packages with shorter names get more downloads. My two cents theory is that they are evocative enough or a library with catchy name (ie. dash). On the other hand, packages with very long names can be extensions of extensions like (company-XXX) with more of a niche aspect to begin with.</p>
+<h2 id="header-5"><span class="section-number">5</span>Owners</h2>
+<p>Earlier I mentioned 1811 unique package owners. I was interested in seeing how many packages does one owner have. Obviously it averages to 2.45 packages per owner, but if I break down into buckets of 1, 2, 3, 4, and 5 and over packages I get this:</p>
+<p><img src="https://blog.abrochard.com/content/img/Owners-by-Package-Count.png" alt="Owner by package count" title="Owner by package count"/></p>
+<p>Which tells us that about 63% of owners published only 1 package to MELPA.</p>
+<h2 id="header-6"><span class="section-number">6</span>Further steps</h2>
+<p>I had quite a bit of fun looking at these numbers. I could foresee going back to the data with different questions. It would also be neat to get information about the code repositories themselves and interact with the github API to get things like total contributors per packages and number of commits.</p>
+<p>And who knows, maybe an interactive page to see charts in more details.</p>
+
+<div class="footer">4/13/2020</div>]]></description><link>https://blog.abrochard.com/melpa-stats.html</link><guid isPermaLink="true">https://blog.abrochard.com/melpa-stats.html</guid></item><item><title><![CDATA[Quick Introduction to Emacs Hyperbole]]></title><description><![CDATA[<noscript><link rel="stylesheet" href="/global.css"></noscript>
+<head><title>Quick Introduction to Emacs Hyperbole</title></head>
+<div class="title-header"><h1>Quick Introduction to Emacs Hyperbole</h1>
+<a href="/hyperbole-intro.html">Link</a></div>
+<p>I have tried to include <a href="https://www.gnu.org/software/hyperbole/">Hyperbole</a> more and more into my workflow, and to match with the upcoming release of Hyperbole 7.0.8, I wanted to share a few tricks I like.</p>
+<p>This is far from covering all of Hyperbole&#39;s capabilities, but its the easiest ones to start with.</p>
+<p>The number one killer feature: &#34;implicit buttons&#34;, or &#34;do what I mean here&#34;.</p>
+<p>By default, put your cursor on something and hit <code>M-Return</code></p>
+<h2 id="header-1"><span class="section-number">1</span>Jump to any file</h2>
+The easiest to understand, just put your cursor on an absolute or relative file path, with optionally a line and column number.<p><img src="https://imgur.com/3ylbs0I.gif" alt="Hyperbole File Jump" title="Hyperbole File Jump"/></p>
+<h2 id="header-2"><span class="section-number">2</span>Run a key sequence</h2>
+<p>You can execute any key sequence from its text representation</p>
+<p><img src="https://imgur.com/KhCc40N.gif" alt="Hyperbole Keypress" title="Hyperbole Keypress"/></p>
+<h2 id="header-3"><span class="section-number">3</span>Jump to error</h2>
+<p>I use that one in my daily workflow. If I get a compiler error, I can directly jump to the line causing a problem.</p>
+<p><img src="https://imgur.com/Gzr0fJu.gif" alt="Hyperbole stack trace" title="Hyperbole stack trace"/></p>
+<h2 id="header-4"><span class="section-number">4</span>Action buttons</h2>
+<p>This is brand new, you can call any emacs lisp function or display a variable value with the <code>&#60;EXPRESSION&#62;</code> syntax.</p>
+<p><img src="https://imgur.com/3bulcvG.gif" alt="Hyperbole Action Buttons" title="Hyperbole Action Buttons"/></p>
+<h2 id="header-5"><span class="section-number">5</span>More cool buttons</h2>
+<ul><li>External processes<pre class="prettyprint"><code class="language-text">      &#34;!/usr/local/bin/redis-cli&#34;</code>
+</pre>
+</li>
+<li>git, github, gitlab links<pre class="prettyprint"><code class="language-text">      gh#abrochard/emacs-todoist/2a63ce7</code>
+</pre>
+</li>
+<li>social media<pre class="prettyprint"><code class="language-text">      twitter@abrochard</code>
+</pre>
+</li>
+</ul>
+<h2 id="header-6"><span class="section-number">6</span>How to install latest</h2>
+<p>I like to work off the git sources.</p>
+<h3 id="header-6-1"><span class="section-number">6.1</span>Clone and make</h3>
+<pre class="prettyprint"><code class="language-shell">  git clone https://git.savannah.gnu.org/git/hyperbole.git
+  cd hyperbole
+  make src</code>
+</pre>
+<h3 id="header-6-2"><span class="section-number">6.2</span>Load</h3>
+<pre class="prettyprint"><code class="language-emacs-lisp">  (add-to-list &#39;load-path &#34;PATH-TO-HYPERBOLE-FOLDER&#34;)
+  (load &#34;hyperbole-autoloads&#34;)
+  (load &#34;hyperbole&#34;)</code>
+</pre>
+<h2 id="header-7"><span class="section-number">7</span>What to do next</h2>
+<p>Check out the demo with <code>{C-h h d d}</code></p>
+
+<div class="footer">1/28/2020</div>]]></description><link>https://blog.abrochard.com/hyperbole-intro.html</link><guid isPermaLink="true">https://blog.abrochard.com/hyperbole-intro.html</guid></item></channel></rss>

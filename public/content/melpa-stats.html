@@ -11,10 +11,10 @@
 </ul>
 <h2 id="header-2"><span class="section-number">2</span>Timeline</h2>
 <p>The first thing I wanted to know was how many packages were added by year. MELPA started in 2012 and since then its biggest year was 2013 with 755 new packages accepted into the repo. Since then, it has been on the decline.</p>
-<p><img src="content/img/packages-added-by-year.png" alt="packages-added-by-year" title="packages-added-by-year"/></p>
+<p><img src="https://blog.abrochard.com/content/img/packages-added-by-year.png" alt="packages-added-by-year" title="packages-added-by-year"/></p>
 <h2 id="header-3"><span class="section-number">3</span>Sources</h2>
 <p>No surprises here but over 95% of packages are hosted on github.com.</p>
-<p><img src="content/img/Source-Distribution.png" alt="Source Distribution" title="Source Distribution"/></p>
+<p><img src="https://blog.abrochard.com/content/img/Source-Distribution.png" alt="Source Distribution" title="Source Distribution"/></p>
 <h2 id="header-4"><span class="section-number">4</span>Downloads</h2>
 <p>The basic stats are:</p>
 <ul><li>average of 39,908 downloads for a package</li>
@@ -24,17 +24,17 @@
 <li>the packages with the most downloads is at 2,693,349 downloads</li>
 </ul>
 <p>This translates into a very long tail distribution with a huge quantity of packages with &#34;few&#34; downloads and outliers with a very large number of downloads.</p>
-<p><img src="content/img/Histogram-of-download-counts.png" alt="Histogram of download counts" title="Histogram of download counts"/></p>
+<p><img src="https://blog.abrochard.com/content/img/Histogram-of-download-counts.png" alt="Histogram of download counts" title="Histogram of download counts"/></p>
 <p>Not very useful. There are definitely fancy ways of representing long tail data but it will have to be for another time.</p>
 <p>More interesting to compare is downloads to months since published.</p>
-<p><img src="content/img/Months-since-added-vs-Download.png" alt="Months added vs Downloads" title="Months added vs Downloads"/></p>
+<p><img src="https://blog.abrochard.com/content/img/Months-since-added-vs-Download.png" alt="Months added vs Downloads" title="Months added vs Downloads"/></p>
 <p>We can see that a lot of packages stay at a relatively low number of downloads over time meanwhile newer packages can reach a large number of downloads quickly.</p>
 <p>Without thinking much, I compared the length of a package name to its download count.</p>
-<p><img src="content/img/Name-length-vs-Download.png" alt="Name length vs Download" title="Name length vs Download"/></p>
+<p><img src="https://blog.abrochard.com/content/img/Name-length-vs-Download.png" alt="Name length vs Download" title="Name length vs Download"/></p>
 <p>It seems that packages with shorter names get more downloads. My two cents theory is that they are evocative enough or a library with catchy name (ie. dash). On the other hand, packages with very long names can be extensions of extensions like (company-XXX) with more of a niche aspect to begin with.</p>
 <h2 id="header-5"><span class="section-number">5</span>Owners</h2>
 <p>Earlier I mentioned 1811 unique package owners. I was interested in seeing how many packages does one owner have. Obviously it averages to 2.45 packages per owner, but if I break down into buckets of 1, 2, 3, 4, and 5 and over packages I get this:</p>
-<p><img src="content/img/Owners-by-Package-Count.png" alt="Owner by package count" title="Owner by package count"/></p>
+<p><img src="https://blog.abrochard.com/content/img/Owners-by-Package-Count.png" alt="Owner by package count" title="Owner by package count"/></p>
 <p>Which tells us that about 63% of owners published only 1 package to MELPA.</p>
 <h2 id="header-6"><span class="section-number">6</span>Further steps</h2>
 <p>I had quite a bit of fun looking at these numbers. I could foresee going back to the data with different questions. It would also be neat to get information about the code repositories themselves and interact with the github API to get things like total contributors per packages and number of commits.</p>

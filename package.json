@@ -4,7 +4,8 @@
   "description": "",
   "main": "generate.js",
   "dependencies": {
-    "org": "^0.2.0"
+    "org": "^0.2.0",
+    "rss": "^1.2.2"
   },
   "devDependencies": {
     "express": "^4.17.1",

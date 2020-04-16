@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const org = require('org');
+const RSS = require('rss');
 
 const FOLDER = './posts';
 const DEST = './public/content';
@@ -37,7 +38,7 @@ const convert = function(file) {
   const header = `<head><title>${post.title}</title></head>`;
   const link = `<a href="/${file.replace('.org', '')}.html">Link</a>`;
   const title = `<div class="title-header">${orgHTMLDocument.titleHTML}${link}</div>`;
-  const body = orgHTMLDocument.contentHTML.replace(/src="file:/g, 'src="'); //  clean up links
+  const body = orgHTMLDocument.contentHTML.replace(/src="file:/g, 'src="https://blog.abrochard.com/'); //  clean up links
   const footer = `<div class="footer">${ts}</div>`;
 
   const content = [noscript, header, title, body, footer].join('\n');
@@ -79,6 +80,37 @@ const buildLinks = function(posts) {
   });
 };
 
+const buildRSSFeed = function(posts) {
+  const feed = new RSS({
+    title: 'blog.abrochard.com',
+    description: 'abrochard tech blog',
+    feed_url: 'https://blog.abrochard.com/rss.xml',
+    site_url: 'https://blog.abrochard.com',
+    image_url: 'https://blog.abrochard.com/favicon.ico',
+    managingEditor: 'Adrien Brochard',
+    webMaster: 'Adrien Brochard',
+    copyright: '2020 Adrien Brochard',
+    language: 'en',
+    categories: ['tech','blog','emacs'],
+    pubDate: Date.now(),
+    ttl: '60',
+  });
+
+  /* loop over data and add to feed */
+  posts.forEach(p => {
+    feed.item({
+      title:  p.title,
+      description: fs.readFileSync(`./public/content/${p.page}`, 'utf-8'),
+      url: `https://blog.abrochard.com/${p.page}`, // link to the item
+      // date: 'May 27, 2012', // any format that js Date can parse.
+    });
+  });
+
+  // cache the xml to send to clients
+  const xml = feed.xml();
+  fs.writeFileSync('./public/rss.xml', xml);
+};
+
 const generate = function() {
   const fileList = fs.readFileSync(INDEX, 'utf-8').split('\n')
         .filter(f => {
@@ -100,6 +132,8 @@ const generate = function() {
   buildStatic(posts);
 
   buildLinks(posts);
+
+  buildRSSFeed(posts);
 };
 
 generate();
