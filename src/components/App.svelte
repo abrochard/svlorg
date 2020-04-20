@@ -60,13 +60,13 @@
         <LazyLoadContainer>
             {#each posts as post, i}
             <LazyLoad id="{i}">
-                <Blog title="{post}" />
+                <Blog title="{post}" noscriptContent="{false}" />
                 <div class="separator"></div>
             </LazyLoad>
             {/each}
         </LazyLoadContainer>
         {:else}
-        <Blog title="{post}"/>
+        <Blog title="{post}" noscriptContent="{true}" />
         {/if}
     </div>
 </div>

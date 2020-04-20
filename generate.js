@@ -34,15 +34,16 @@ const convert = function(file) {
   // console.dir(orgDocument);
   // console.dir(orgHTMLDocument);
 
-  const noscript = `<noscript><link rel="stylesheet" href="/global.css"></noscript>`;
   const header = `<head><title>${post.title}</title></head>`;
   const link = `<a href="/${file.replace('.org', '')}.html">Link</a>`;
   const title = `<div class="title-header">${orgHTMLDocument.titleHTML}${link}</div>`;
   const body = orgHTMLDocument.contentHTML.replace(/src="file:/g, 'src="https://blog.abrochard.com/'); //  clean up links
   const footer = `<div class="footer">${ts}</div>`;
 
-  const content = [noscript, header, title, body, footer].join('\n');
+  const content = [header, title, body, footer].join('\n');
   fs.writeFileSync(path.join(DEST, post.page), content);
+
+  post.content = content;
 
   return post;
 };
@@ -73,7 +74,7 @@ const buildStatic = function(posts) {
 const buildLinks = function(posts) {
   const index = fs.readFileSync(HTML, 'utf-8');
   posts.forEach(p => {
-    const templ = `<noscript><iframe width="100%" height="100%" style="width:100%; height:100%;" src="content/${p.page}"></iframe></noscript>`;
+    const templ = `<noscript><div id="content">${p.content}</div></noscript>`;
     const content = index.replace('<title>Blog</title>', `<title>${p.title}</title>`)
           .replace( /<noscript>(.|\n)*<\/noscript>/, templ);
     fs.writeFileSync(`./public/${p.page}`, content);

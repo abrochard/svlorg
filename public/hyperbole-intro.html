@@ -27,7 +27,52 @@
         <title>Quick Introduction to Emacs Hyperbole</title>
     </head>
     <body>
-      <noscript><iframe width="100%" height="100%" style="width:100%; height:100%;" src="content/hyperbole-intro.html"></iframe></noscript>
+      <noscript><div id="content">
+<head><title>Quick Introduction to Emacs Hyperbole</title></head>
+<div class="title-header"><h1>Quick Introduction to Emacs Hyperbole</h1>
+<a href="/hyperbole-intro.html">Link</a></div>
+<p>I have tried to include <a href="https://www.gnu.org/software/hyperbole/">Hyperbole</a> more and more into my workflow, and to match with the upcoming release of Hyperbole 7.0.8, I wanted to share a few tricks I like.</p>
+<p>This is far from covering all of Hyperbole&#39;s capabilities, but its the easiest ones to start with.</p>
+<p>The number one killer feature: &#34;implicit buttons&#34;, or &#34;do what I mean here&#34;.</p>
+<p>By default, put your cursor on something and hit <code>M-Return</code></p>
+<h2 id="header-1"><span class="section-number">1</span>Jump to any file</h2>
+The easiest to understand, just put your cursor on an absolute or relative file path, with optionally a line and column number.<p><img src="https://imgur.com/3ylbs0I.gif" alt="Hyperbole File Jump" title="Hyperbole File Jump"/></p>
+<h2 id="header-2"><span class="section-number">2</span>Run a key sequence</h2>
+<p>You can execute any key sequence from its text representation</p>
+<p><img src="https://imgur.com/KhCc40N.gif" alt="Hyperbole Keypress" title="Hyperbole Keypress"/></p>
+<h2 id="header-3"><span class="section-number">3</span>Jump to error</h2>
+<p>I use that one in my daily workflow. If I get a compiler error, I can directly jump to the line causing a problem.</p>
+<p><img src="https://imgur.com/Gzr0fJu.gif" alt="Hyperbole stack trace" title="Hyperbole stack trace"/></p>
+<h2 id="header-4"><span class="section-number">4</span>Action buttons</h2>
+<p>This is brand new, you can call any emacs lisp function or display a variable value with the <code>&#60;EXPRESSION&#62;</code> syntax.</p>
+<p><img src="https://imgur.com/3bulcvG.gif" alt="Hyperbole Action Buttons" title="Hyperbole Action Buttons"/></p>
+<h2 id="header-5"><span class="section-number">5</span>More cool buttons</h2>
+<ul><li>External processes<pre class="prettyprint"><code class="language-text">      &#34;!/usr/local/bin/redis-cli&#34;</code>
+</pre>
+</li>
+<li>git, github, gitlab links<pre class="prettyprint"><code class="language-text">      gh#abrochard/emacs-todoist/2a63ce7</code>
+</pre>
+</li>
+<li>social media<pre class="prettyprint"><code class="language-text">      twitter@abrochard</code>
+</pre>
+</li>
+</ul>
+<h2 id="header-6"><span class="section-number">6</span>How to install latest</h2>
+<p>I like to work off the git sources.</p>
+<h3 id="header-6-1"><span class="section-number">6.1</span>Clone and make</h3>
+<pre class="prettyprint"><code class="language-shell">  git clone https://git.savannah.gnu.org/git/hyperbole.git
+  cd hyperbole
+  make src</code>
+</pre>
+<h3 id="header-6-2"><span class="section-number">6.2</span>Load</h3>
+<pre class="prettyprint"><code class="language-emacs-lisp">  (add-to-list &#39;load-path &#34;PATH-TO-HYPERBOLE-FOLDER&#34;)
+  (load &#34;hyperbole-autoloads&#34;)
+  (load &#34;hyperbole&#34;)</code>
+</pre>
+<h2 id="header-7"><span class="section-number">7</span>What to do next</h2>
+<p>Check out the demo with <code>{C-h h d d}</code></p>
+
+<div class="footer">1/28/2020</div></div></noscript>
         <script src="bundle.js"></script>
     </body>
 </html>

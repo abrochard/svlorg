@@ -1,11 +1,16 @@
 <script>
 
  export let title = '';
+ export let noscriptContent = false;
  let promise = getContent();
 
  async function getContent() {
-	 const res = await fetch(`content/${title}.html`);
-	 const text = await res.text();
+   const noscript = document.getElementsByTagName("noscript");
+   if (noscript.length > 0 && noscriptContent) {
+     return noscript[0].innerText;
+   }
+   const res = await fetch(`content/${title}.html`);
+   const text = await res.text();
 
 	 if (res.ok) {
 		 return text;
