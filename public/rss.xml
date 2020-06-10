@@ -1,5 +1,143 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[blog.abrochard.com]]></title><description><![CDATA[abrochard tech blog]]></description><link>https://blog.abrochard.com</link><image><url>https://blog.abrochard.com/favicon.ico</url><title>blog.abrochard.com</title><link>https://blog.abrochard.com</link></image><generator>RSS for Node</generator><lastBuildDate>Thu, 16 Apr 2020 20:18:39 GMT</lastBuildDate><atom:link href="https://blog.abrochard.com/rss.xml" rel="self" type="application/rss+xml"/><pubDate>Thu, 16 Apr 2020 20:18:39 GMT</pubDate><copyright><![CDATA[2020 Adrien Brochard]]></copyright><language><![CDATA[en]]></language><managingEditor><![CDATA[Adrien Brochard]]></managingEditor><webMaster><![CDATA[Adrien Brochard]]></webMaster><ttl>60</ttl><category><![CDATA[tech]]></category><category><![CDATA[blog]]></category><category><![CDATA[emacs]]></category><item><title><![CDATA[Some statistics about MELPA]]></title><description><![CDATA[<noscript><link rel="stylesheet" href="/global.css"></noscript>
-<head><title>Some statistics about MELPA</title></head>
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[blog.abrochard.com]]></title><description><![CDATA[abrochard tech blog]]></description><link>https://blog.abrochard.com</link><image><url>https://blog.abrochard.com/favicon.ico</url><title>blog.abrochard.com</title><link>https://blog.abrochard.com</link></image><generator>RSS for Node</generator><lastBuildDate>Wed, 10 Jun 2020 20:29:52 GMT</lastBuildDate><atom:link href="https://blog.abrochard.com/rss.xml" rel="self" type="application/rss+xml"/><pubDate>Wed, 10 Jun 2020 20:29:52 GMT</pubDate><copyright><![CDATA[2020 Adrien Brochard]]></copyright><language><![CDATA[en]]></language><managingEditor><![CDATA[Adrien Brochard]]></managingEditor><webMaster><![CDATA[Adrien Brochard]]></webMaster><ttl>60</ttl><category><![CDATA[tech]]></category><category><![CDATA[blog]]></category><category><![CDATA[emacs]]></category><item><title><![CDATA[Emacs & Websockets]]></title><description><![CDATA[<head><title>Emacs & Websockets</title></head>
+<div class="title-header"><h1>Emacs &#38; Websockets</h1>
+<a href="/websockets.html">Link</a></div>
+<p>I work with websockets a lot and as painful as they can be sometimes, their versatility easily makes up for it. If you are not familiar, a websocket is basically a <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API">two way connection between a client and server</a>. You would typically encounter one in a web chat applications, or any use case when you would want the server to send data to the browser without the browser requesting it first.</p>
+<p>And of course there is an amazing <a href="https://github.com/ahyatt/emacs-websocket">Emacs extension</a> for it on Elpa thanks to Andrew Hyatt. It&#39;s a bit lacking in explicit documentation, but the <a href="https://github.com/ahyatt/emacs-websocket/blob/master/websocket-functional-test.el">functional tests</a> for it provide the main ideas on how to get started.</p>
+<h2 id="header-1"><span class="section-number">1</span>Emacs as a websocket client</h2>
+<p>Probably the first use case: how to open a websocket connection from Emacs.</p>
+<p>Here is a basic example making use of the  <a href="https://websocket.org/echo.html">websocket.org echo test</a> which echoes back any string sent.</p>
+<pre class="prettyprint"><code class="language-emacs-lisp">  (require &#39;websocket)
+
+  (setq my-websocket
+        (websocket-open &#34;wss://echo.websocket.org&#34;
+                        :on-message (lambda (_websocket frame)
+                                      (message &#34;ws frame: %S&#34; (websocket-frame-text frame)))
+                        :on-close (lambda (_websocket) (message &#34;websocket closed&#34;))))
+
+  (websocket-send-text my-websocket &#34;hello from emacs&#34;)
+
+  (websocket-close my-websocket)</code>
+</pre>
+<ol><li>we load the websocket extension</li>
+<li>we open a new websocket and name it <code>my-websocket</code><ol><li>we provide a function to call when we receive a message from the server: print it out</li>
+<li>we provide a function to call when the websocket is closed: message &#34;websocket closed&#34;</li>
+</ol>
+</li>
+<li>we send &#34;hello from emacs&#34; through the websocket</li>
+<li>we close the websocket</li>
+</ol>
+<p>Note that the <code>on-message</code> function is given two arguments:</p>
+<ol><li>the websocket object itself, that we are ignoring here</li>
+<li>the frame data from which we can extract text with the <code>websocket-frame-text</code> function</li>
+</ol>
+<p>In terms of output, we see</p>
+<pre class="prettyprint"><code class="language-text">ws frame: &#34;hello from emacs&#34;
+websocket closed</code>
+</pre>
+<ol><li>the echo server sending back our original message</li>
+<li>the websocket being closed</li>
+</ol>
+<h2 id="header-2"><span class="section-number">2</span>Emacs as a websocket server</h2>
+<p>Now onto the more exotic stuff: how to turn Emacs into a websocket server.</p>
+<h3 id="header-2-1"><span class="section-number">2.1</span>Basic Setup</h3>
+<p>Let&#39;s start with a basic setup:</p>
+<pre class="prettyprint"><code class="language-emacs-lisp">  (setq my-websocket-server
+        (websocket-server
+         3000
+         :host &#39;local
+         :on-message (lambda (_websocket frame)
+                       (message &#34;received message through websocket&#34;))
+         :on-open (lambda (_websocket)
+                    (message &#34;websocket opened&#34;))
+         :on-close (lambda (_websocket)
+                     (message &#34;websocket closed&#34;))))
+</code>
+</pre>
+<ol><li>we start a websocket server and call it <code>my-websocket-server</code></li>
+<li>the server is running on localhost port 3000</li>
+<li>when the server receives a message, we print &#34;received message through websocket&#34;</li>
+<li>when a client connects to the server, we print &#34;websocket opened&#34;</li>
+<li>when a client closes the websocket, we print &#34;websocket closed&#34;</li>
+</ol>
+<p>Now to test this code, we could use the sample from the earlier section, but instead let&#39;s use some Javascript code that we will enhance later on. We can paste this in the browser console:</p>
+<pre class="prettyprint"><code class="language-javascript">  const ws = new WebSocket(&#34;ws://localhost:3000&#34;);
+
+  ws.onmessage = function(event) {
+    console.log(event.data);
+  }
+
+  ws.send(&#34;hi&#34;);
+  ws.close();</code>
+</pre>
+<ol><li>we establish a connection to localhost:3000</li>
+<li>we register a function to log any frame data coming from the server</li>
+<li>we send &#34;hi&#34; to the server and see &#34;hi&#34; echoed back in the console</li>
+<li>we close the connection</li>
+</ol>
+<p>From the Emacs perspective, we see</p>
+<pre class="prettyprint"><code class="language-text">websocket opened
+received message through websocket
+websocket closed</code>
+</pre>
+<p>And just for the sake of completeness, we should close our server:</p>
+<pre class="prettyprint"><code class="language-emacs-lisp">  (websocket-server-close my-websocket-server)</code>
+</pre>
+<h3 id="header-2-2"><span class="section-number">2.2</span>Automatic Refresh on Save</h3>
+<p>Let&#39;s do a real use case: trigger the browser to refresh a page when we save some edits. This is a good example because it is the classic case of having a server (Emacs) needing to send a message to the client (the browser) without having client requesting it first. In other words, we don&#39;t want the browser to poll Emacs every X seconds asking if it should refresh, we want Emacs to tell the browser to refresh.</p>
+<p>We start with a very simple HTML document that we name &#34;test.html&#34;.</p>
+<pre class="prettyprint"><code class="language-html">  &#60;html&#62;
+    &#60;body&#62;
+      &#60;h1&#62;Hello world&#60;/h1&#62;
+    &#60;/body&#62;
+    &#60;script&#62;
+     const ws = new WebSocket(&#34;ws://localhost:3000&#34;);
+     ws.onmessage = function(frame) {
+       location.reload();
+     }
+    &#60;/script&#62;
+  &#60;/html&#62;</code>
+</pre>
+<p>All it shows is &#34;Hello world&#34; in big font but actually:</p>
+<ol><li>we open a websocket to localhost:3000</li>
+<li>on every message coming from that websocket, we trigger a page reload</li>
+</ol>
+<p>Now on the Emacs side, we need to do define the function that we want to call when &#34;test.html&#34; is saved</p>
+<pre class="prettyprint"><code class="language-emacs-lisp">  (defvar opened-websocket nil)
+
+  (defun websocket-on-save ()
+    (when (and opened-websocket
+               (equal &#34;test.html&#34; (buffer-name (current-buffer))))
+      (websocket-send-text opened-websocket &#34;refresh&#34;)))
+
+  (add-hook &#39;after-save-hook #&#39;websocket-on-save)</code>
+</pre>
+<ol><li>Define a global object for our websocket and initialize it as nil</li>
+<li>Define the <code>websocket-on-save</code> function which<ol><li>if our websocket is not nil</li>
+<li>and we are currently editing &#34;test.html&#34;</li>
+<li>we send the string &#34;refresh&#34; through our websocket</li>
+</ol>
+</li>
+<li>Have <code>websocket-on-save</code> be called after every buffer save</li>
+</ol>
+<p>Now let&#39;s start the server again (if you encounter an &#34;Address already in use error&#34; you might have forgotten to stop the server in the previous example)</p>
+<pre class="prettyprint"><code class="language-emacs-lisp">  (setq my-websocket-server
+        (websocket-server
+         3000
+         :host &#39;local
+         :on-open (lambda (ws) (setq opened-websocket ws))
+         :on-close (lambda (_websocket) (setq opened-websocket nil))))</code>
+</pre>
+<ol><li>When a connection is made, we assign it to our global websocket object</li>
+<li>When a connection is closed, we reset our global to nil</li>
+</ol>
+<p>With all that hooked up, we can make some changes to the &#34;test.html&#34; file and see them appear without refreshing!</p>
+<p><img src="https://blog.abrochard.com/content/img/websocket-refreshing.gif" alt="websocket-refreshing" title="websocket-refreshing"/></p>
+<p>And let&#39;s not forget to clean up by removing the hook and closing the server:</p>
+<pre class="prettyprint"><code class="language-emacs-lisp">  (remove-hook &#39;after-save-hook #&#39;websocket-on-save)
+  (websocket-server-close my-websocket-server)</code>
+</pre>
+
+<div class="footer">6/10/2020</div>]]></description><link>https://blog.abrochard.com/websockets.html</link><guid isPermaLink="true">https://blog.abrochard.com/websockets.html</guid></item><item><title><![CDATA[Some statistics about MELPA]]></title><description><![CDATA[<head><title>Some statistics about MELPA</title></head>
 <div class="title-header"><h1>Some statistics about MELPA</h1>
 <a href="/melpa-stats.html">Link</a></div>
 <p>Full disclaimer first: I am not a statistician nor well versed in statistics. But I was recently very interested in knowing more about <a href="https://melpa.org/#/">MELPA</a> and how it was used. I did a bit of research, wrote a little <a href="https://github.com/abrochard/melpa-stats/blob/master/main.py">data massaging script</a>, compiled data <a href="https://github.com/abrochard/melpa-stats/blob/master/data.csv">here</a>, and went on to gather a few basic statistics about MELPA.</p>
@@ -40,8 +178,7 @@
 <p>I had quite a bit of fun looking at these numbers. I could foresee going back to the data with different questions. It would also be neat to get information about the code repositories themselves and interact with the github API to get things like total contributors per packages and number of commits.</p>
 <p>And who knows, maybe an interactive page to see charts in more details.</p>
 
-<div class="footer">4/13/2020</div>]]></description><link>https://blog.abrochard.com/melpa-stats.html</link><guid isPermaLink="true">https://blog.abrochard.com/melpa-stats.html</guid></item><item><title><![CDATA[Quick Introduction to Emacs Hyperbole]]></title><description><![CDATA[<noscript><link rel="stylesheet" href="/global.css"></noscript>
-<head><title>Quick Introduction to Emacs Hyperbole</title></head>
+<div class="footer">4/13/2020</div>]]></description><link>https://blog.abrochard.com/melpa-stats.html</link><guid isPermaLink="true">https://blog.abrochard.com/melpa-stats.html</guid></item><item><title><![CDATA[Quick Introduction to Emacs Hyperbole]]></title><description><![CDATA[<head><title>Quick Introduction to Emacs Hyperbole</title></head>
 <div class="title-header"><h1>Quick Introduction to Emacs Hyperbole</h1>
 <a href="/hyperbole-intro.html">Link</a></div>
 <p>I have tried to include <a href="https://www.gnu.org/software/hyperbole/">Hyperbole</a> more and more into my workflow, and to match with the upcoming release of Hyperbole 7.0.8, I wanted to share a few tricks I like.</p>

@@ -1,0 +1,168 @@
+#+TITLE: Emacs & Websockets
+
+I work with websockets a lot and as painful as they can be sometimes, their versatility easily makes up for it. If you are not familiar, a websocket is basically a [[https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API][two way connection between a client and server]]. You would typically encounter one in a web chat applications, or any use case when you would want the server to send data to the browser without the browser requesting it first.
+
+And of course there is an amazing [[https://github.com/ahyatt/emacs-websocket][Emacs extension]] for it on Elpa thanks to Andrew Hyatt. It's a bit lacking in explicit documentation, but the [[https://github.com/ahyatt/emacs-websocket/blob/master/websocket-functional-test.el][functional tests]] for it provide the main ideas on how to get started.
+
+* Emacs as a websocket client
+
+Probably the first use case: how to open a websocket connection from Emacs.
+
+Here is a basic example making use of the  [[https://websocket.org/echo.html][websocket.org echo test]] which echoes back any string sent.
+#+begin_src emacs-lisp
+  (require 'websocket)
+
+  (setq my-websocket
+        (websocket-open "wss://echo.websocket.org"
+                        :on-message (lambda (_websocket frame)
+                                      (message "ws frame: %S" (websocket-frame-text frame)))
+                        :on-close (lambda (_websocket) (message "websocket closed"))))
+
+  (websocket-send-text my-websocket "hello from emacs")
+
+  (websocket-close my-websocket)
+#+end_src
+
+1. we load the websocket extension
+2. we open a new websocket and name it =my-websocket=
+   1. we provide a function to call when we receive a message from the server: print it out
+   2. we provide a function to call when the websocket is closed: message "websocket closed"
+3. we send "hello from emacs" through the websocket
+4. we close the websocket
+
+Note that the =on-message= function is given two arguments:
+1. the websocket object itself, that we are ignoring here
+2. the frame data from which we can extract text with the =websocket-frame-text= function
+
+In terms of output, we see
+#+begin_src text
+ws frame: "hello from emacs"
+websocket closed
+#+end_src
+1. the echo server sending back our original message
+2. the websocket being closed
+
+* Emacs as a websocket server
+
+Now onto the more exotic stuff: how to turn Emacs into a websocket server.
+
+** Basic Setup
+
+Let's start with a basic setup:
+#+begin_src emacs-lisp
+  (setq my-websocket-server
+        (websocket-server
+         3000
+         :host 'local
+         :on-message (lambda (_websocket frame)
+                       (message "received message through websocket"))
+         :on-open (lambda (_websocket)
+                    (message "websocket opened"))
+         :on-close (lambda (_websocket)
+                     (message "websocket closed"))))
+
+#+end_src
+1. we start a websocket server and call it =my-websocket-server=
+2. the server is running on localhost port 3000
+3. when the server receives a message, we print "received message through websocket"
+4. when a client connects to the server, we print "websocket opened"
+5. when a client closes the websocket, we print "websocket closed"
+
+Now to test this code, we could use the sample from the earlier section, but instead let's use some Javascript code that we will enhance later on. We can paste this in the browser console:
+
+#+begin_src javascript
+  const ws = new WebSocket("ws://localhost:3000");
+
+  ws.onmessage = function(event) {
+    console.log(event.data);
+  }
+
+  ws.send("hi");
+  ws.close();
+#+end_src
+
+1. we establish a connection to localhost:3000
+2. we register a function to log any frame data coming from the server
+3. we send "hi" to the server and see "hi" echoed back in the console
+4. we close the connection
+
+From the Emacs perspective, we see
+#+begin_src text
+websocket opened
+received message through websocket
+websocket closed
+#+end_src
+
+And just for the sake of completeness, we should close our server:
+#+begin_src emacs-lisp
+  (websocket-server-close my-websocket-server)
+#+end_src
+
+** Automatic Refresh on Save
+
+Let's do a real use case: trigger the browser to refresh a page when we save some edits. This is a good example because it is the classic case of having a server (Emacs) needing to send a message to the client (the browser) without having client requesting it first. In other words, we don't want the browser to poll Emacs every X seconds asking if it should refresh, we want Emacs to tell the browser to refresh.
+
+We start with a very simple HTML document that we name "test.html".
+
+#+begin_src html
+  <html>
+    <body>
+      <h1>Hello world</h1>
+    </body>
+    <script>
+     const ws = new WebSocket("ws://localhost:3000");
+     ws.onmessage = function(frame) {
+       location.reload();
+     }
+    </script>
+  </html>
+#+end_src
+
+All it shows is "Hello world" in big font but actually:
+1. we open a websocket to localhost:3000
+2. on every message coming from that websocket, we trigger a page reload
+
+Now on the Emacs side, we need to do define the function that we want to call when "test.html" is saved
+
+#+begin_src emacs-lisp
+  (defvar opened-websocket nil)
+
+  (defun websocket-on-save ()
+    (when (and opened-websocket
+               (equal "test.html" (buffer-name (current-buffer))))
+      (websocket-send-text opened-websocket "refresh")))
+
+  (add-hook 'after-save-hook #'websocket-on-save)
+#+end_src
+
+1. Define a global object for our websocket and initialize it as nil
+2. Define the =websocket-on-save= function which
+   1. if our websocket is not nil
+   2. and we are currently editing "test.html"
+   3. we send the string "refresh" through our websocket
+3. Have =websocket-on-save= be called after every buffer save
+
+Now let's start the server again (if you encounter an "Address already in use error" you might have forgotten to stop the server in the previous example)
+
+#+begin_src emacs-lisp
+  (setq my-websocket-server
+        (websocket-server
+         3000
+         :host 'local
+         :on-open (lambda (ws) (setq opened-websocket ws))
+         :on-close (lambda (_websocket) (setq opened-websocket nil))))
+#+end_src
+
+1. When a connection is made, we assign it to our global websocket object
+2. When a connection is closed, we reset our global to nil
+
+With all that hooked up, we can make some changes to the "test.html" file and see them appear without refreshing!
+
+[[file:content/img/websocket-refreshing.gif][websocket-refreshing]]
+
+And let's not forget to clean up by removing the hook and closing the server:
+
+#+begin_src emacs-lisp
+  (remove-hook 'after-save-hook #'websocket-on-save)
+  (websocket-server-close my-websocket-server)
+#+end_src

@@ -1,4 +1,5 @@
 export default [
-  'melpa-stats',
+  'websockets',
+'melpa-stats',
 'hyperbole-intro'
 ];
