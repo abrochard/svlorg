@@ -73,8 +73,8 @@ To be a bit more comprehensive we can pack multiple <code>should</code> statemen
 
      (ert &#39;silly-test-division)</code>
 </pre>
-<p>Remember that the &#34;l&#34; key in the tests results buffer will show all the <code>should</code> statements individually:
-<img src="https://blog.abrochard.com/content/img/ert-should-list.png" alt="ert-should-list" title="ert-should-list"/></p>
+<p>Remember that the &#34;l&#34; key in the tests results buffer will show all the <code>should</code> statements individually:</p>
+<p><img src="https://blog.abrochard.com/content/img/ert-should-list.png" alt="ert-should-list" title="ert-should-list"/></p>
 <h3 id="header-2-4"><span class="section-number">2.4</span>Testing for error</h3>
 Sometimes it can be useful to make sure that our code errors under certain scenarios. In the case of <code>silly-division</code>, we do want to throw an error if the user tries to divide by zero. To test that, we can use the <code>should-error</code> function and optionally pass the type of error we expect to see.<pre class="prettyprint"><code class="language-emacs-lisp">     (ert-deftest silly-test-division-by-zero ()
        (should-error (silly-division 8 0)
@@ -152,7 +152,7 @@ A better approach when trying to test functions which do not return a value or h
 <h2 id="header-4"><span class="section-number">4</span>Running all tests at once</h2>
 Now that we have a whole bunch of tests defined, we can run them all once. You may have noticed that all example tests were prefixed the same way, it was to make this task easier by passing a regexp to the <code>ert</code> function:<pre class="prettyprint"><code class="language-emacs-lisp">    (ert &#34;silly-test-*&#34;)</code>
 </pre>
-<p>And you can take it even further by running the tests from a bash script or a docker call, perfect for your CI pipeline:</p>
+<p>And you can take it even further by running the tests from a bash script or a docker command, perfect for your CI pipeline:</p>
 <pre class="prettyprint"><code class="language-shell">     docker run -it --rm  -v $(pwd):/silly silex/emacs emacs -batch -l ert -l /silly/silly.el -l /silly/silly-test.el -f ert-run-tests-batch-and-exit</code>
 </pre>
 <p>Which will output:</p>

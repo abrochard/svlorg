@@ -61,6 +61,7 @@ This is the written version of a lightning talk I recently gave at the [[https:/
    #+end_src
 
    Remember that the "l" key in the tests results buffer will show all the =should= statements individually:
+
    [[file:content/img/ert-should-list.png][ert-should-list]]
 
 ** Testing for error
