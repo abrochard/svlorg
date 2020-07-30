@@ -1,5 +1,6 @@
 export default [
-  'websockets',
+  'ert-tests',
+'websockets',
 'melpa-stats',
 'hyperbole-intro'
 ];

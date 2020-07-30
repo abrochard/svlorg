@@ -1,0 +1,209 @@
+#+TITLE: ERT: Emacs Lisp Regression Testing
+
+This is the written version of a lightning talk I recently gave at the [[https://emacsnyc.org/][NYC Emacs Meetup]], which is a great meetup that I cannot recommend enough.
+
+* Why
+  The goal is simple: automatically make sure that a program is not broken by writing tests for it and running them automatically.
+
+  Emacs lisp in particular is a good candidate for automated testing because it is ancient and quirky, provides no static types, and is often the result of many individual contributors. And to make things super easy, Emacs is shipped with =ert=, the Emacs Lisp Regression Testing library to write and run tests.
+
+* Simple example
+  Let's start by writing a =silly= package in a =silly.el= file with some silly functions like this =silly-division=
+  #+begin_src emacs-lisp
+    (defun silly-division (a b)
+      "Silly divide A by B."
+      (if (equal b 1)
+          a
+        (/ a b)))
+  #+end_src
+  1. divide a by b
+  2. if b is 1, spare ourselves the computation and return a
+
+** Simple test
+   We can now write our first silly test:
+   #+begin_src emacs-lisp
+     (require 'ert)
+
+     (ert-deftest silly-test-division ()
+       (should (equal 4 (silly-division 8 2))))
+   #+end_src
+   1. import the =ert= library
+   2. create a test named =silly-test-division=
+   3. make sure that in our world =8/2 = 4=
+
+   For practical reasons, I would write my tests in a file named =silly-test.el= next to =silly.el=.
+
+** How to run
+   You can run a test interactively via =M-x ert= and selecting it, or by evaluating
+   #+begin_src emacs-lisp
+     (ert 'silly-test-division)
+   #+end_src
+
+   [[file:content/img/ert-results.png][ert-results]]
+
+   Once ran, you will be in the debugging editor where you can:
+   - "TAB" to move around
+   - "." to jump to code
+   - "b" for backtrace
+   - "l" to show all =should= statements
+
+** Testing multiple cases
+   To be a bit more comprehensive we can pack multiple =should= statements in the same test. This allows us to look at multiple cases while still keeping the test results clear.
+
+   #+begin_src emacs-lisp :results output none
+     (ert-deftest silly-test-division ()
+       (should (equal 4 (silly-division 8 2)))
+       (should (equal 2 (silly-division 10 5)))
+       (should (equal 10 (silly-division 10 1)))
+       (should (equal 2 (silly-division 8 4))))
+
+     (ert 'silly-test-division)
+   #+end_src
+
+   Remember that the "l" key in the tests results buffer will show all the =should= statements individually:
+   [[file:content/img/ert-should-list.png][ert-should-list]]
+
+** Testing for error
+   Sometimes it can be useful to make sure that our code errors under certain scenarios. In the case of =silly-division=, we do want to throw an error if the user tries to divide by zero. To test that, we can use the =should-error= function and optionally pass the type of error we expect to see.
+
+   #+begin_src emacs-lisp :results output none
+     (ert-deftest silly-test-division-by-zero ()
+       (should-error (silly-division 8 0)
+                     :type 'arith-error))
+
+     (ert 'silly-test-division-by-zero)
+   #+end_src
+
+** Testing for failure
+   An even more under-estimated feature is the ability to write a failing test. This can be very useful for recording known bugs and helping contributors fix things. In our case, =silly-division= has a problem: it only does integer division. If you run =(silly-division 1 2)=, you should see the output as 0.
+
+   Rather than fix our function to perform floating point division, let's write a test for this bug:
+   #+begin_src emacs-lisp :results output none
+     (ert-deftest silly-test-float-division-bug ()
+       :expected-result :failed
+       (should (equal .5 (silly-division 1 2))))
+
+     (ert 'silly-test-float-division-bug)
+   #+end_src
+   When ran, we will see a failure in the result buffer but the failure will be indicated by a green lower-case =f=.
+
+   [[file:content/img/ert-test-failure.png][ert-test-failure]]
+
+* Trickier function
+  Let's add another silly function to our =silly-package=
+  #+begin_src emacs-lisp
+    (defun silly-temp-writer (str)
+      (with-temp-buffer
+        (insert (format "L %s L" str))
+        (write-file "/tmp/silly-write.txt")))
+  #+end_src
+  1. take a string
+  2. format it "L %s L"
+  3. write that string to "/tmp/silly-write.txt"
+  4. don't return anything
+
+  How can we reliably test this? And what are we actually trying to test? I would argue that we want to make sure that what ends up being written to the file what we expect.
+
+** Naive method
+   We can try a naive approach which will work:
+   #+begin_src emacs-lisp :results output none
+     (ert-deftest silly-test-temp-writer ()
+       (silly-temp-writer "my-string")
+       (should (equal "L my-string L"
+                      (with-temp-buffer
+                        (insert-file-contents "/tmp/silly-write.txt")
+                        (string-trim (buffer-string))))))
+
+     (ert 'silly-test-temp-writer)
+   #+end_src
+   1. call =silly-temp-write-function= with string "my-string"
+   2. read the content of "/tmp/silly-write.txt"
+   3. remove the new line
+   4. compare it to expected result "Lmy-stringL"
+
+   However, we have a few issues here:
+   - side effects in the test, we are leaving a file on the machine after running the test
+   - no isolation, if another process deletes the file mid-test, we could have a false negative
+   - testing more than we should, we are not just testing our logic but also the =write-file= function
+   - test complexity, our test is convoluted and hard to read
+
+** Better approach with mocking
+   A better approach when trying to test functions which do not return a value or have side-effects is to use mocking. We will temporarily re-wire the =write-file= function to perform some assertion instead of actually writing to a file on disk.
+   #+begin_src emacs-lisp :results output none
+     (require 'cl-macs)
+
+     (ert-deftest silly-test-temp-writer ()
+       (cl-letf (((symbol-function 'write-file)
+                  (lambda (filename)
+                    (should (equal "/tmp/silly-write.txt" filename))
+                    (should (equal "L my-string L" (buffer-string))))))
+         (silly-temp-writer "my-string")))
+
+     (ert 'silly-test-temp-writer)
+   #+end_src
+   1. Define a mock =write-file= function
+      - check that we write in the correct location
+      - check that the content is formatted properly
+   2. Temporarily replace the real =write-file= with our mock
+   3. Call =silly-temp-writer=
+
+   We can observe that now most of our issues from the naive test are gone:
+   - Not actually writing to the system or leaving state
+   - Test more and closer to the intended behavior
+   - Not testing something we didn't intend to (ie. the =write-file= function)
+
+   NB: In the past I used to do this with the =flet= function but apparently it is obsolete since Emacs 24.3. As a replacement, I found that =cl-left= from the =cl-macs= library did the job pretty well.
+
+* Running all tests at once
+  Now that we have a whole bunch of tests defined, we can run them all once. You may have noticed that all example tests were prefixed the same way, it was to make this task easier by passing a regexp to the =ert= function:
+  #+begin_src emacs-lisp :results output none
+    (ert "silly-test-*")
+  #+end_src
+
+  And you can take it even further by running the tests from a bash script or a docker command, perfect for your CI pipeline:
+
+   #+begin_src shell
+     docker run -it --rm  -v $(pwd):/silly silex/emacs emacs -batch -l ert -l /silly/silly.el -l /silly/silly-test.el -f ert-run-tests-batch-and-exit
+  #+end_src
+
+  Which will output:
+  #+begin_src text
+    Running 4 tests (2020-07-08 14:47:49+0000)
+       passed  1/4  silly-test-division
+       passed  2/4  silly-test-division-by-zero
+       failed  3/4  silly-test-float-division-bug
+       passed  4/4  silly-test-temp-writer
+
+    Ran 4 tests, 4 results as expected (2020-07-08 14:47:49+0000)
+    1 expected failures
+  #+end_src
+
+* Visualizing coverage
+  A less known feature, but it is possible to visually see which lines are covered by your tests and how well.
+
+  1. =M-x testcover-start=
+  2. Select the =silly.el= file
+  3. Run tests
+     #+begin_src emacs-lisp
+       (ert "silly-test-*")
+     #+end_src
+  4. =M-x testcover-mark-all= and select =silly.el=
+  5. See results:
+     - red is not evaluated at all
+     - brown is always evaluated with the same value
+
+  [[file:content/img/ert-testcover.png][ert-testcover]]
+
+  For example, in this case, we can see that I only have one test case for my =silly-division= with =b= equal to 1 and returning =a= directly.
+
+
+* Best practices
+  - ask yourself what you want to test
+  - start by making tests fail, there's nothing better to insure you are taking the code path you think you are taking
+  - write clean test with no side effect, and if you must have side effect, run a cleanup function afterwards
+  - descriptive test names can really help figure out what is broken
+  - good tests means good debugging
+
+* More Resources
+  - [[https://www.gnu.org/software/emacs/manual/html_mono/ert.html][ERT Manual]]
+  - [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Test-Coverage.html][Emacs Manuel on Test Coverage]]

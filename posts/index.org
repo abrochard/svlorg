@@ -1,3 +1,4 @@
+ert-tests.org
 websockets.org
 melpa-stats.org
 hyperbole-intro.org

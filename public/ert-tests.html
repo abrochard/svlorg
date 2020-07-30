@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#000000">
+    <meta name="description" content="Tech Blog of abrochard.com">
+
+        <!-- Generated CSS -->
+        <link rel="stylesheet" href="main.css">
+        <!-- Custom CSS -->
+        <link rel="stylesheet" href="global.css">
+        <!-- <link rel="manifest" href="/manifest.json"> -->
+        <link rel="shortcut icon" href="favicon.ico">
+
+        <style type="text/css">
+         html, body {
+           margin: 0;
+           width: 100%;
+           height: 100%;
+           overflow-x: hidden;
+         }
+         body {
+           height: 100%;
+         }
+        </style>
+        <title>ERT: Emacs Lisp Regression Testing</title>
+    </head>
+    <body>
+      <noscript><div id="content"><head><title>ERT: Emacs Lisp Regression Testing</title></head>
+<div class="title-header"><h1>ERT: Emacs Lisp Regression Testing</h1>
+<a href="/ert-tests.html">Link</a></div>
+<p>This is the written version of a lightning talk I recently gave at the <a href="https://emacsnyc.org/">NYC Emacs Meetup</a>, which is a great meetup that I cannot recommend enough.</p>
+<h2 id="header-1"><span class="section-number">1</span>Why</h2>
+The goal is simple: automatically make sure that a program is not broken by writing tests for it and running them automatically.<p>Emacs lisp in particular is a good candidate for automated testing because it is ancient and quirky, provides no static types, and is often the result of many individual contributors. And to make things super easy, Emacs is shipped with <code>ert</code>, the Emacs Lisp Regression Testing library to write and run tests.</p>
+<h2 id="header-2"><span class="section-number">2</span>Simple example</h2>
+Let&#39;s start by writing a <code>silly</code> package in a <code>silly.el</code> file with some silly functions like this <code>silly-division</code><pre class="prettyprint"><code class="language-emacs-lisp">    (defun silly-division (a b)
+      &#34;Silly divide A by B.&#34;
+      (if (equal b 1)
+          a
+        (/ a b)))</code>
+</pre>
+<ol><li>divide a by b</li>
+<li>if b is 1, spare ourselves the computation and return a</li>
+</ol>
+<h3 id="header-2-1"><span class="section-number">2.1</span>Simple test</h3>
+We can now write our first silly test:<pre class="prettyprint"><code class="language-emacs-lisp">     (require &#39;ert)
+
+     (ert-deftest silly-test-division ()
+       (should (equal 4 (silly-division 8 2))))</code>
+</pre>
+<ol><li>import the <code>ert</code> library</li>
+<li>create a test named <code>silly-test-division</code></li>
+<li>make sure that in our world <code>8/2 = 4</code></li>
+</ol>
+<p>For practical reasons, I would write my tests in a file named <code>silly-test.el</code> next to <code>silly.el</code>.</p>
+<h3 id="header-2-2"><span class="section-number">2.2</span>How to run</h3>
+You can run a test interactively via <code>M-x ert</code> and selecting it, or by evaluating<pre class="prettyprint"><code class="language-emacs-lisp">     (ert &#39;silly-test-division)</code>
+</pre>
+<p><img src="https://blog.abrochard.com/content/img/ert-results.png" alt="ert-results" title="ert-results"/></p>
+<p>Once ran, you will be in the debugging editor where you can:</p>
+<ul><li>&#34;TAB&#34; to move around</li>
+<li>&#34;.&#34; to jump to code</li>
+<li>&#34;b&#34; for backtrace</li>
+<li>&#34;l&#34; to show all <code>should</code> statements</li>
+</ul>
+<h3 id="header-2-3"><span class="section-number">2.3</span>Testing multiple cases</h3>
+To be a bit more comprehensive we can pack multiple <code>should</code> statements in the same test. This allows us to look at multiple cases while still keeping the test results clear.<pre class="prettyprint"><code class="language-emacs-lisp">     (ert-deftest silly-test-division ()
+       (should (equal 4 (silly-division 8 2)))
+       (should (equal 2 (silly-division 10 5)))
+       (should (equal 10 (silly-division 10 1)))
+       (should (equal 2 (silly-division 8 4))))
+
+     (ert &#39;silly-test-division)</code>
+</pre>
+<p>Remember that the &#34;l&#34; key in the tests results buffer will show all the <code>should</code> statements individually:
+<img src="https://blog.abrochard.com/content/img/ert-should-list.png" alt="ert-should-list" title="ert-should-list"/></p>
+<h3 id="header-2-4"><span class="section-number">2.4</span>Testing for error</h3>
+Sometimes it can be useful to make sure that our code errors under certain scenarios. In the case of <code>silly-division</code>, we do want to throw an error if the user tries to divide by zero. To test that, we can use the <code>should-error</code> function and optionally pass the type of error we expect to see.<pre class="prettyprint"><code class="language-emacs-lisp">     (ert-deftest silly-test-division-by-zero ()
+       (should-error (silly-division 8 0)
+                     :type &#39;arith-error))
+
+     (ert &#39;silly-test-division-by-zero)</code>
+</pre>
+<h3 id="header-2-5"><span class="section-number">2.5</span>Testing for failure</h3>
+An even more under-estimated feature is the ability to write a failing test. This can be very useful for recording known bugs and helping contributors fix things. In our case, <code>silly-division</code> has a problem: it only does integer division. If you run <code>(silly-division 1 2)</code>, you should see the output as 0.<p>Rather than fix our function to perform floating point division, let&#39;s write a test for this bug:</p>
+<pre class="prettyprint"><code class="language-emacs-lisp">     (ert-deftest silly-test-float-division-bug ()
+       :expected-result :failed
+       (should (equal .5 (silly-division 1 2))))
+
+     (ert &#39;silly-test-float-division-bug)</code>
+</pre>
+When ran, we will see a failure in the result buffer but the failure will be indicated by a green lower-case <code>f</code>.<p><img src="https://blog.abrochard.com/content/img/ert-test-failure.png" alt="ert-test-failure" title="ert-test-failure"/></p>
+<h2 id="header-3"><span class="section-number">3</span>Trickier function</h2>
+Let&#39;s add another silly function to our <code>silly-package</code><pre class="prettyprint"><code class="language-emacs-lisp">    (defun silly-temp-writer (str)
+      (with-temp-buffer
+        (insert (format &#34;L %s L&#34; str))
+        (write-file &#34;/tmp/silly-write.txt&#34;)))</code>
+</pre>
+<ol><li>take a string</li>
+<li>format it &#34;L %s L&#34;</li>
+<li>write that string to &#34;/tmp/silly-write.txt&#34;</li>
+<li>don&#39;t return anything</li>
+</ol>
+<p>How can we reliably test this? And what are we actually trying to test? I would argue that we want to make sure that what ends up being written to the file what we expect.</p>
+<h3 id="header-3-1"><span class="section-number">3.1</span>Naive method</h3>
+We can try a naive approach which will work:<pre class="prettyprint"><code class="language-emacs-lisp">     (ert-deftest silly-test-temp-writer ()
+       (silly-temp-writer &#34;my-string&#34;)
+       (should (equal &#34;L my-string L&#34;
+                      (with-temp-buffer
+                        (insert-file-contents &#34;/tmp/silly-write.txt&#34;)
+                        (string-trim (buffer-string))))))
+
+     (ert &#39;silly-test-temp-writer)</code>
+</pre>
+<ol><li>call <code>silly-temp-write-function</code> with string &#34;my-string&#34;</li>
+<li>read the content of &#34;/tmp/silly-write.txt&#34;</li>
+<li>remove the new line</li>
+<li>compare it to expected result &#34;Lmy-stringL&#34;</li>
+</ol>
+<p>However, we have a few issues here:</p>
+<ul><li>side effects in the test, we are leaving a file on the machine after running the test</li>
+<li>no isolation, if another process deletes the file mid-test, we could have a false negative</li>
+<li>testing more than we should, we are not just testing our logic but also the <code>write-file</code> function</li>
+<li>test complexity, our test is convoluted and hard to read</li>
+</ul>
+<h3 id="header-3-2"><span class="section-number">3.2</span>Better approach with mocking</h3>
+A better approach when trying to test functions which do not return a value or have side-effects is to use mocking. We will temporarily re-wire the <code>write-file</code> function to perform some assertion instead of actually writing to a file on disk.<pre class="prettyprint"><code class="language-emacs-lisp">     (require &#39;cl-macs)
+
+     (ert-deftest silly-test-temp-writer ()
+       (cl-letf (((symbol-function &#39;write-file)
+                  (lambda (filename)
+                    (should (equal &#34;/tmp/silly-write.txt&#34; filename))
+                    (should (equal &#34;L my-string L&#34; (buffer-string))))))
+         (silly-temp-writer &#34;my-string&#34;)))
+
+     (ert &#39;silly-test-temp-writer)</code>
+</pre>
+<ol><li>Define a mock <code>write-file</code> function<ul><li>check that we write in the correct location</li>
+<li>check that the content is formatted properly</li>
+</ul>
+</li>
+<li>Temporarily replace the real <code>write-file</code> with our mock</li>
+<li>Call <code>silly-temp-writer</code></li>
+</ol>
+<p>We can observe that now most of our issues from the naive test are gone:</p>
+<ul><li>Not actually writing to the system or leaving state</li>
+<li>Test more and closer to the intended behavior</li>
+<li>Not testing something we didn&#39;t intend to (ie. the <code>write-file</code> function)</li>
+</ul>
+<p>NB: In the past I used to do this with the <code>flet</code> function but apparently it is obsolete since Emacs 24.3. As a replacement, I found that <code>cl-left</code> from the <code>cl-macs</code> library did the job pretty well.</p>
+<h2 id="header-4"><span class="section-number">4</span>Running all tests at once</h2>
+Now that we have a whole bunch of tests defined, we can run them all once. You may have noticed that all example tests were prefixed the same way, it was to make this task easier by passing a regexp to the <code>ert</code> function:<pre class="prettyprint"><code class="language-emacs-lisp">    (ert &#34;silly-test-*&#34;)</code>
+</pre>
+<p>And you can take it even further by running the tests from a bash script or a docker call, perfect for your CI pipeline:</p>
+<pre class="prettyprint"><code class="language-shell">     docker run -it --rm  -v $(pwd):/silly silex/emacs emacs -batch -l ert -l /silly/silly.el -l /silly/silly-test.el -f ert-run-tests-batch-and-exit</code>
+</pre>
+<p>Which will output:</p>
+<pre class="prettyprint"><code class="language-text">    Running 4 tests (2020-07-08 14:47:49+0000)
+       passed  1/4  silly-test-division
+       passed  2/4  silly-test-division-by-zero
+       failed  3/4  silly-test-float-division-bug
+       passed  4/4  silly-test-temp-writer
+
+    Ran 4 tests, 4 results as expected (2020-07-08 14:47:49+0000)
+    1 expected failures</code>
+</pre>
+<h2 id="header-5"><span class="section-number">5</span>Visualizing coverage</h2>
+A less known feature, but it is possible to visually see which lines are covered by your tests and how well.<ol><li><code>M-x testcover-start</code></li>
+<li>Select the <code>silly.el</code> file</li>
+<li>Run tests<pre class="prettyprint"><code class="language-emacs-lisp">       (ert &#34;silly-test-*&#34;)</code>
+</pre>
+</li>
+<li><code>M-x testcover-mark-all</code> and select <code>silly.el</code></li>
+<li>See results:<ul><li>red is not evaluated at all</li>
+<li>brown is always evaluated with the same value</li>
+</ul>
+</li>
+</ol>
+<p><img src="https://blog.abrochard.com/content/img/ert-testcover.png" alt="ert-testcover" title="ert-testcover"/></p>
+<p>For example, in this case, we can see that I only have one test case for my <code>silly-division</code> with <code>b</code> equal to 1 and returning <code>a</code> directly.</p>
+<h2 id="header-6"><span class="section-number">6</span>Best practices</h2>
+<ul><li>ask yourself what you want to test</li>
+<li>start by making tests fail, there&#39;s nothing better to insure you are taking the code path you think you are taking</li>
+<li>write clean test with no side effect, and if you must have side effect, run a cleanup function afterwards</li>
+<li>descriptive test names can really help figure out what is broken</li>
+<li>good tests means good debugging</li>
+</ul>
+<h2 id="header-7"><span class="section-number">7</span>More Resources</h2>
+<ul><li><a href="https://www.gnu.org/software/emacs/manual/html_mono/ert.html">ERT Manual</a></li>
+<li><a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Test-Coverage.html">Emacs Manuel on Test Coverage</a></li>
+</ul>
+
+<div class="footer">7/29/2020</div></div></noscript>
+        <script src="bundle.js"></script>
+    </body>
+</html>
