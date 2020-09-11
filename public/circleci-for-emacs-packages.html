@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#000000">
+    <meta name="description" content="Tech Blog of abrochard.com">
+
+        <!-- Generated CSS -->
+        <link rel="stylesheet" href="main.css">
+        <!-- Custom CSS -->
+        <link rel="stylesheet" href="global.css">
+        <!-- <link rel="manifest" href="/manifest.json"> -->
+        <link rel="shortcut icon" href="favicon.ico">
+
+        <style type="text/css">
+         html, body {
+           margin: 0;
+           width: 100%;
+           height: 100%;
+           overflow-x: hidden;
+         }
+         body {
+           height: 100%;
+         }
+        </style>
+        <title>Continuous Integration of Emacs Packages with CircleCI</title>
+    </head>
+    <body>
+      <noscript><div id="content"><head><title>Continuous Integration of Emacs Packages with CircleCI</title></head>
+<div class="title-header"><h1>Continuous Integration of Emacs Packages with CircleCI</h1>
+<a href="/circleci-for-emacs-packages.html">Link</a></div>
+<p>I was very inspired by <a href="https://emacsconf.org/2019/talks/16/">Damien Cassou&#39;s great presentation</a> during EmacsConf 2019 to write this post and I encourage you to check it out if you haven&#39;t already. In short, when writing packages for Emacs, it is best practice to run several quality tools on them, like syntax and documentation checkers, or even <a href="https://blog.abrochard.com/ert-tests.html">ERT Tests</a>. But once these packages are public and pull requests start coming in, it is a huge time saver to have these same tools ran automatically and provide feedback to contributors. That&#39;s right, we&#39;re talking about Continuous Integration for Emacs packages.</p>
+<h2 id="header-1"><span class="section-number">1</span>Why CircleCI</h2>
+<p>There are many CI/CD services out there that can help us out. Damien Cassou shows examples with Travis, Gitlab and Drone, but I wanted to focus on CircleCI. It&#39;s far from perfect but their free tier is decent, their markdown badge is pretty, and I wrote a <a href="https://github.com/abrochard/magit-circleci">CircleCI Magit extension</a> to show the build status in Emacs (ie. an extension for an Emacs extension).</p>
+<h2 id="header-2"><span class="section-number">2</span>Run Steps</h2>
+<p>We want a few things to happen automatically:</p>
+<ul><li>install package dependencies from Elpa/Melpa/Org</li>
+<li>run ERT tests</li>
+<li>byte compile</li>
+<li>lint package</li>
+</ul>
+<p>To keep things simple, I will use my package <a href="https://github.com/abrochard/kubel">kubel</a> as the guinea pig here.</p>
+<h2 id="header-3"><span class="section-number">3</span>CircleCI Config Skeleton</h2>
+<p>Leaving out the actual commands, we can start with a simple draft of the <code>.circleci/config.yml</code> that uses the docker image for Emacs 27.1 as our base:</p>
+<pre class="prettyprint"><code class="language-yaml">  version: 2.1
+
+  jobs:
+    build:
+      docker:
+        - image: silex/emacs:27.1
+      working_directory: /kubel
+      steps:
+        - run: apt update &#38;&#38; apt install -y git ssh
+        - checkout
+        - run:
+            name: Install packages
+            command: TBD
+
+        - run:
+            name: ERT tests
+            command: TBD
+
+        - run:
+            name: Compile
+            command: TBD
+
+        - run:
+            name: Lint
+            command: TBD</code>
+</pre>
+<p>Note that the <code>silex/emacs</code> image doesn&#39;t come with git and ssh installed, and that we need to <code>apt install</code> them first thing as they are required to run the code checkout step.</p>
+<h2 id="header-4"><span class="section-number">4</span>Emacs Lisp Code</h2>
+<p>Let&#39;s translate the desired run steps into actual Emacs Lisp Code for Kubel:</p>
+<ul><li>my package dependencies are transient, dash, yaml-mode and s<pre class="prettyprint"><code class="language-emacs-lisp">    (let ((my-packages &#39;(transient dash yaml-mode s)))
+      (add-to-list &#39;package-archives &#39;(&#34;melpa&#34; . &#34;https://melpa.org/packages/&#34;) t)
+      (package-initialize)
+      (package-refresh-contents)
+      (package-install &#39;package-lint) ;; we&#39;ll need it later
+      (dolist (pkg my-packages)
+        (package-install pkg)))</code>
+</pre>
+</li>
+<li>run ERT tests in <code>test/kubel-test.el</code><pre class="prettyprint"><code class="language-emacs-lisp">    (load-file &#34;kubel.el&#34;) ;; load code first
+    (load-file &#34;test/kubel-test.el&#34;)
+    (ert-run-tests-batch-and-exit)</code>
+</pre>
+</li>
+<li>simple byte compile with warnings not counting as errors<pre class="prettyprint"><code class="language-emacs-lisp">    (setq byte-compile-error-on-warn nil)
+    (batch-byte-compile)</code>
+</pre>
+</li>
+<li>run <code>package-lint</code>, this time with warnings counting as errors<pre class="prettyprint"><code class="language-emacs-lisp">    (require &#39;package-lint)
+    (setq package-lint-batch-fail-on-warnings t)
+    (package-lint-batch-and-exit)</code>
+</pre>
+</li>
+</ul>
+<h2 id="header-5"><span class="section-number">5</span>How to trigger from CLI</h2>
+<p>This is probably the biggest hurdle: how to run Emacs Lisp Code from the command line in an elegant manner? There are quite a few solutions out there to help with this: Damien Cassou&#39;s <a href="https://gitea.petton.fr/DamienCassou/makel">fancy Makefile</a>, collections of <a href="https://github.com/alphapapa/makem.sh">bash script</a>, and <a href="https://github.com/alphapapa/makem.sh#comparisons">plenty of others</a>. However I am not completely convinced by any of them as I find the syntax always a bit clunky and hard to read. I am currently settled with putting all the Emacs Lisp code into a single <code>make.el</code> file, and call the individual step functions via the <code>--funcall</code> option in the CLI.</p>
+<p>Here is the full <code>make.el</code> which I find quite readable:</p>
+<pre class="prettyprint"><code class="language-emacs-lisp">  (require &#39;package)
+
+  (defconst make-packages
+    &#39;(transient dash yaml-mode s))
+
+  (defun make-init ()
+    (add-to-list &#39;package-archives &#39;(&#34;melpa&#34; . &#34;https://melpa.org/packages/&#34;) t)
+    (package-initialize))
+
+  (defun make-install-packages ()
+    (make-init)
+    (package-refresh-contents)
+    (package-install &#39;package-lint)
+    (dolist (pkg make-packages)
+      (package-install pkg)))
+
+  (defun make-ert ()
+    (make-init)
+    (load-file &#34;/kubel/kubel.el&#34;)
+    (load-file &#34;/kubel/test/kubel-test.el&#34;)
+    (ert-run-tests-batch-and-exit))
+
+  (defun make-compile ()
+    (make-init)
+    (setq byte-compile-error-on-warn nil)
+    (batch-byte-compile))
+
+  (defun make-lint ()
+    (make-init)
+    (require &#39;package-lint)
+    (setq package-lint-batch-fail-on-warnings t)
+    (package-lint-batch-and-exit))
+
+  (provide &#39;make)
+  ;;; make.el ends here</code>
+</pre>
+<p>And from there I can call my step functions directly:</p>
+<pre class="prettyprint"><code class="language-bash">  emacs -Q --batch -l make.el --funcall make-install-packages
+  emacs -Q --batch -l make.el --funcall make-ert
+  emacs -Q --batch -l make.el --funcall make-compile kubel.el
+  emacs -Q --batch -l make.el --funcall make-lint kubel.el</code>
+</pre>
+<h2 id="header-6"><span class="section-number">6</span>Putting It All Together</h2>
+<p>I placed my <code>make.el</code> file in the <code>.circleci</code> folder to keep things organized:</p>
+<pre class="prettyprint"><code class="language-yaml">  version: 2.1
+
+  jobs:
+    build:
+      docker:
+        - image: silex/emacs:27.1
+      working_directory: /kubel
+      steps:
+        - run: apt update &#38;&#38; apt install -y git ssh make
+        - checkout
+        - run:
+            name: Install packages
+            command: |
+              emacs -Q --batch -l .circleci/make.el --funcall make-install-packages
+
+        - run:
+            name: ERT tests
+            command: |
+              emacs -Q --batch -l .circleci/make.el --funcall make-ert
+
+        - run:
+            name: Compile
+            command: |
+              emacs -Q --batch -l .circleci/make.el --funcall make-compile kubel.el
+
+        - run:
+            name: Lint
+            command: |
+              emacs -Q --batch -l .circleci/make.el --funcall make-lint kubel.el</code>
+</pre>
+<p>This will nicely run all our steps in order on Emacs 27.1 on every commit.</p>
+<p><img src="https://blog.abrochard.com/content/img/circleci-build.png" alt="CircleCI build dashboard" title="CircleCI build dashboard"/></p>
+<h2 id="header-7"><span class="section-number">7</span>Can We Do Better?</h2>
+<p>Yes!</p>
+<p>Running tests and linter and whatnot is very nice, but I think there&#39;s an even bigger benefit we can reap here from spinning up a fully isolated Emacs instance. We can answer questions which are often harder to investigate locally:</p>
+<ul><li>how can we make sure we truly only depend on the packages we say we depend on?</li>
+<li>how can we make sure our package actually works on the all the Emacs versions we say we support?</li>
+</ul>
+<p>We already answer the first question thanks to the dockerized Emacs and the controlled external package installation. For the second question, we can parallelize the build steps to run on multiple Emacs versions all at once:</p>
+<pre class="prettyprint"><code class="language-yaml">  version: 2.1
+
+  steps: &#38;steps
+    working_directory: /kubel
+    steps:
+      - run: apt update &#38;&#38; apt install -y git ssh make
+      - checkout
+      - run:
+          name: Install packages
+          command: |
+            emacs -Q --batch -l .circleci/make.el --funcall make-install-packages
+
+      - run:
+          name: ERT tests
+          command: |
+            emacs -Q --batch -l .circleci/make.el --funcall make-ert
+
+      - run:
+          name: Compile
+          command: |
+            emacs -Q --batch -l .circleci/make.el --funcall make-compile kubel.el
+
+      - run:
+          name: Lint
+          command: |
+            emacs -Q --batch -l .circleci/make.el --funcall make-lint kubel.el
+
+  jobs:
+    emacs-27:
+      docker:
+        - image: silex/emacs:27.1
+      &#60;&#60;: *steps
+    emacs-26:
+      docker:
+        - image: silex/emacs:26.3
+      &#60;&#60;: *steps
+    emacs-25:
+      docker:
+        - image: silex/emacs:25.3
+      &#60;&#60;: *steps
+
+  workflows:
+    version: 2
+    build:
+      jobs:
+        - emacs-25
+        - emacs-26
+        - emacs-27</code>
+</pre>
+<p><img src="https://blog.abrochard.com/content/img/circleci-pr.png" alt="CircleCI PR Checks" title="CircleCI PR Checks"/></p>
+<h2 id="header-8"><span class="section-number">8</span>Final Words &#38; Further Reading</h2>
+<p>Why not use docker and a trendy CI/CD system to run integration tasks for extensions of a Babylonian software?</p>
+<p>I encourage you to checkout:</p>
+<ul><li><a href="https://emacsconf.org/2019/talks/16/">Damien Cassou&#39;s full presentation</a></li>
+<li><a href="https://github.com/Silex/docker-emacs">Silex&#39; Dockerized Emacs</a></li>
+<li><a href="https://circleci.com/docs/">CircleCI Doc</a></li>
+</ul>
+
+<div class="footer">9/11/2020</div></div></noscript>
+        <script src="bundle.js"></script>
+    </body>
+</html>

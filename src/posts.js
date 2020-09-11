@@ -1,5 +1,6 @@
 export default [
-  'ert-tests',
+  'circleci-for-emacs-packages',
+'ert-tests',
 'websockets',
 'melpa-stats',
 'hyperbole-intro'

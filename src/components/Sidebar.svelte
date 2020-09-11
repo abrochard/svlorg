@@ -3,7 +3,8 @@
  const links = [
      {title: 'Homepage', url: 'https://abrochard.com'},
      {title: 'GitHub', url: 'https://github.com/abrochard'},
-     {title: 'Twitter', url: 'https://twitter.com/abrochard'}
+     {title: 'Twitter', url: 'https://twitter.com/abrochard'},
+     {title: 'RSS', url: 'https://blog.abrochard.com/rss.xml'}
  ];
 
  export let dark = localStorage.getItem('dark') === "true" ? true : false;
