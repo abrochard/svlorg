@@ -1,5 +1,6 @@
 export default [
-  'circleci-for-emacs-packages',
+  'ann-emacs-survey-2020',
+'circleci-for-emacs-packages',
 'ert-tests',
 'websockets',
 'melpa-stats',

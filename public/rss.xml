@@ -1,4 +1,31 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[blog.abrochard.com]]></title><description><![CDATA[abrochard tech blog]]></description><link>https://blog.abrochard.com</link><image><url>https://blog.abrochard.com/favicon.ico</url><title>blog.abrochard.com</title><link>https://blog.abrochard.com</link></image><generator>RSS for Node</generator><lastBuildDate>Fri, 11 Sep 2020 17:52:42 GMT</lastBuildDate><atom:link href="https://blog.abrochard.com/rss.xml" rel="self" type="application/rss+xml"/><pubDate>Fri, 11 Sep 2020 17:52:42 GMT</pubDate><copyright><![CDATA[2020 Adrien Brochard]]></copyright><language><![CDATA[en]]></language><managingEditor><![CDATA[Adrien Brochard]]></managingEditor><webMaster><![CDATA[Adrien Brochard]]></webMaster><ttl>60</ttl><category><![CDATA[tech]]></category><category><![CDATA[blog]]></category><category><![CDATA[emacs]]></category><item><title><![CDATA[Continuous Integration of Emacs Packages with CircleCI]]></title><description><![CDATA[<head><title>Continuous Integration of Emacs Packages with CircleCI</title></head>
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[blog.abrochard.com]]></title><description><![CDATA[abrochard tech blog]]></description><link>https://blog.abrochard.com</link><image><url>https://blog.abrochard.com/favicon.ico</url><title>blog.abrochard.com</title><link>https://blog.abrochard.com</link></image><generator>RSS for Node</generator><lastBuildDate>Wed, 14 Oct 2020 15:05:21 GMT</lastBuildDate><atom:link href="https://blog.abrochard.com/rss.xml" rel="self" type="application/rss+xml"/><pubDate>Wed, 14 Oct 2020 15:05:21 GMT</pubDate><copyright><![CDATA[2020 Adrien Brochard]]></copyright><language><![CDATA[en]]></language><managingEditor><![CDATA[Adrien Brochard]]></managingEditor><webMaster><![CDATA[Adrien Brochard]]></webMaster><ttl>60</ttl><category><![CDATA[tech]]></category><category><![CDATA[blog]]></category><category><![CDATA[emacs]]></category><item><title><![CDATA[Announcing the Emacs User Survey 2020]]></title><description><![CDATA[<head><title>Announcing the Emacs User Survey 2020</title></head>
+<div class="title-header"><h1>Announcing the Emacs User Survey 2020</h1>
+<a href="/ann-emacs-survey-2020.html">Link</a></div>
+<p>The first iteration of the Emacs User Survey is currently on track to open up Monday October 19th 2020.</p>
+<p>A huge thanks to everyone who gave feedback and suggestions, and particularly u/yyoncho who had put together a great list of questions on r/emacs.</p>
+<h2 id="header-1"><span class="section-number">1</span>Why</h2>
+<p>For the community to understand itself better.</p>
+<h2 id="header-2"><span class="section-number">2</span>Where</h2>
+<p><a href="https://emacssurvey.org">https://emacssurvey.org</a></p>
+<h2 id="header-3"><span class="section-number">3</span>When</h2>
+<p>The survey will be open from Monday October 19th to Monday November 30th.</p>
+<h2 id="header-4"><span class="section-number">4</span>How</h2>
+<p>Two ways to submit the survey:</p>
+<ul><li>online form</li>
+<li>filling out a template and emailing it back</li>
+</ul>
+<h2 id="header-5"><span class="section-number">5</span>Who</h2>
+<p>Questions or comments can go to <a href="mailto:contact@emacssurvey.org">contact@emacssurvey.org</a></p>
+<h2 id="header-6"><span class="section-number">6</span>What you can do to help</h2>
+Once the survey is open, you can<ul><li>fill it out!</li>
+<li>most importantly, share it with your Emacs friends!<ul><li>blog about it</li>
+<li>email your colleagues who also use Emacs</li>
+<li>etc</li>
+</ul>
+</li>
+</ul>
+
+<div class="footer">10/14/2020</div>]]></description><link>https://blog.abrochard.com/ann-emacs-survey-2020.html</link><guid isPermaLink="true">https://blog.abrochard.com/ann-emacs-survey-2020.html</guid></item><item><title><![CDATA[Continuous Integration of Emacs Packages with CircleCI]]></title><description><![CDATA[<head><title>Continuous Integration of Emacs Packages with CircleCI</title></head>
 <div class="title-header"><h1>Continuous Integration of Emacs Packages with CircleCI</h1>
 <a href="/circleci-for-emacs-packages.html">Link</a></div>
 <p>I was very inspired by <a href="https://emacsconf.org/2019/talks/16/">Damien Cassou&#39;s great presentation</a> during EmacsConf 2019 to write this post and I encourage you to check it out if you haven&#39;t already. In short, when writing packages for Emacs, it is best practice to run several quality tools on them, like syntax and documentation checkers, or even <a href="https://blog.abrochard.com/ert-tests.html">ERT Tests</a>. But once these packages are public and pull requests start coming in, it is a huge time saver to have these same tools ran automatically and provide feedback to contributors. That&#39;s right, we&#39;re talking about Continuous Integration for Emacs packages.</p>

@@ -1,0 +1,35 @@
+#+TITLE: Announcing the Emacs User Survey 2020
+
+The first iteration of the Emacs User Survey is currently on track to open up Monday October 19th 2020.
+
+A huge thanks to everyone who gave feedback and suggestions, and particularly u/yyoncho who had put together a great list of questions on r/emacs.
+
+* Why
+
+  For the community to understand itself better.
+
+* Where
+
+  [[https://emacssurvey.org][https://emacssurvey.org]]
+
+* When
+
+  The survey will be open from Monday October 19th to Monday November 30th.
+
+* How
+
+  Two ways to submit the survey:
+  - online form
+  - filling out a template and emailing it back
+
+* Who
+
+  Questions or comments can go to [[mailto:contact@emacssurvey.org][contact@emacssurvey.org]]
+
+* What you can do to help
+  Once the survey is open, you can
+  - fill it out!
+  - most importantly, share it with your Emacs friends!
+    - blog about it
+    - email your colleagues who also use Emacs
+    - etc
